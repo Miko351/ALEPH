@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b161b">
+  <link rel="icon" href="data:,">
+  <title>온실 봉쇄 · 게임</title>
+  <meta name="description" content="탐사원의 길을 골라 표본을 모으고 자동으로 움직이는 괴생물의 추적을 피하는 25초 웹게임">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./script.js" defer></script>
+</head>
+<body>
+  <main class="page">
+    <header class="page-head">
+      <div>
+        <p class="eyebrow">BROWSER MINI GAME</p>
+        <h1>온실 봉쇄</h1>
+      </div>
+      <div class="page-actions"><p class="page-note">탐사원의 길을 선택하고 괴생물의 추적을 피하는 25초</p><a class="back-link" href="./index.html">← 시작 화면</a></div>
+    </header>
+
+    <section class="game" id="game" aria-label="온실 봉쇄 게임 화면">
+      <div class="scene" id="scene">
+        <div class="scene-shade" aria-hidden="true"></div>
+
+        <div class="hud" aria-label="게임 상태">
+          <div class="hud-goal"><span class="hud-id-dot" aria-hidden="true"></span><span><small>탈출 조건</small><strong>표본 3개 이상 · 경보 4 이하</strong></span></div>
+          <div class="hud-counter sample-counter"><span>표본</span><strong id="sample-value">0</strong><small>/ 3</small></div>
+          <div class="hud-counter alert-counter"><span>경보</span><strong id="alert-value">1</strong><small>/ 5</small></div>
+          <span class="state" id="game-state" role="status">대기 중</span>
+        </div>
+
+        <div class="event-report" id="event-report" role="status" aria-live="polite" aria-atomic="true" hidden>
+          <div class="event-report-heading"><small id="event-number">1번 관문 결과</small><strong id="event-path">↑ 위쪽 길 선택</strong></div>
+          <div class="event-impact event-impact--tech">
+            <div class="event-impact-source"><span aria-hidden="true">나</span><div><small>내 선택</small><strong id="event-tech-action">표본 길 통과</strong></div></div>
+            <div class="event-impact-values"><b id="event-tech-sample">표본 +1 ↑</b><b id="event-tech-alert">경보 +1 ↑</b></div>
+          </div>
+          <div class="event-impact event-impact--creature">
+            <div class="event-impact-source"><span aria-hidden="true">괴</span><div><small>괴생물 행동</small><strong id="event-creature-action">자동 순찰</strong></div></div>
+            <div class="event-impact-values"><b id="event-creature-alert">경보 -1 ↓</b></div>
+          </div>
+          <p class="event-result"><small>최종 수치</small><strong id="event-total">표본 0 → 1 · 경보 1 → 1</strong></p>
+        </div>
+
+        <div class="floor-label floor-label--upper" aria-hidden="true"><span>01</span> 탐사 구역</div>
+        <div class="floor-label floor-label--lower" aria-hidden="true"><span>02</span> 격리 구역</div>
+        <div class="gate-layer" id="gate-layer" aria-hidden="true"></div>
+
+        <div class="actor actor--tech" id="tech-actor" aria-hidden="true"><img src="./assets/technician.png" alt=""></div>
+        <div class="actor actor--specimen" id="specimen-actor" aria-hidden="true"><img src="./assets/specimen.png" alt=""><span class="actor-tag" id="creature-mode">순찰 중</span></div>
+        <div class="floor-glow floor-glow--upper" id="upper-glow" aria-hidden="true"></div>
+        <div class="floor-glow floor-glow--lower" id="lower-glow" aria-hidden="true"></div>
+
+        <div class="opening" id="opening" hidden>
+          <div class="opening-card">
+            <p class="opening-kicker">OPERATION COMPLETE</p>
+            <h2 id="opening-title" tabindex="-1">작전 결과</h2>
+            <p id="opening-copy">이번 판의 결과가 여기에 표시됩니다.</p>
+            <button id="start-button" class="start-button" type="button">다시 도전 <span aria-hidden="true">➜</span></button>
+          </div>
+        </div>
+
+        <div class="game-controls">
+          <div class="next-event" aria-label="탐사원 길 선택과 괴생물 자동 행동">
+            <div class="next-heading"><span class="next-kicker">탐사원 길 선택</span><strong id="next-title">1번 관문</strong><b id="next-time">4.0초</b></div>
+            <p class="creature-forecast" id="creature-forecast">괴생물 자동 순찰 · 경보 -1</p>
+            <div class="route-choices">
+              <div class="route-choice is-selected" id="route-up">
+                <span class="route-direction"><b>↑ 위쪽 길</b></span>
+                <span class="route-effects"><strong id="route-up-result">표본 +1</strong><em id="route-up-alert">합산 경보 0</em></span>
+              </div>
+              <div class="route-choice" id="route-down">
+                <span class="route-direction"><b>↓ 아래쪽 길</b></span>
+                <span class="route-effects"><strong id="route-down-result">빈 길</strong><em id="route-down-alert">합산 경보 -3</em></span>
+              </div>
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="direction-controls" role="group" aria-label="탐사원 길 선택">
+              <button id="up-button" class="direction-button" type="button" disabled aria-keyshortcuts="ArrowUp" aria-pressed="true"><span aria-hidden="true">↑</span><strong>위쪽 길</strong></button>
+              <button id="down-button" class="direction-button" type="button" disabled aria-keyshortcuts="ArrowDown" aria-pressed="false"><span aria-hidden="true">↓</span><strong>아래쪽 길</strong></button>
+            </div>
+            <button id="history-button" class="small-button" type="button" aria-label="플레이 기록 보기">▤</button>
+            <button id="rules-button" class="small-button" type="button" aria-label="게임 방법 다시 보기">?</button>
+            <button id="pause-button" class="small-button" type="button" disabled aria-label="일시정지, P 키">Ⅱ</button>
+            <button id="restart-button" class="small-button" type="button" aria-label="새 판 시작, R 키">↺</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <dialog class="rules-dialog" id="rules-dialog" aria-labelledby="rules-title">
+      <div class="rules-dialog-head"><h2 id="rules-title">게임 방법</h2><button id="rules-close" type="button" aria-label="게임 방법 닫기">×</button></div>
+      <p class="rules-dialog-lead">탐사원의 길만 선택합니다. 괴생물은 자동으로 순찰하거나 추적합니다.</p>
+      <ol>
+        <li><strong>탐사원 길 고르기</strong> — <kbd>↑</kbd>는 위쪽, <kbd>↓</kbd>는 아래쪽입니다. 화면의 두 방향 버튼도 사용할 수 있습니다. 괴생물의 이동은 바꿀 수 없습니다.</li>
+        <li><strong>표본·경보 관리</strong> — 탐사원은 표본 길에서 표본 +1·경보 +1, 빈 길에서 경보 -2입니다. 괴생물은 느린 순찰 시 경보 -1, 빠른 추적 시 +<span data-chase-value>1</span>입니다. ‘탐사원 길 선택’은 둘을 합친 경보 변화를 보여줍니다.</li>
+        <li><strong>성공·실패</strong> — 25초가 끝날 때 표본 3개 이상과 경보 4 이하이면 성공. 경보 5는 즉시 실패, 표본 부족은 시간 종료 시 실패입니다.</li>
+      </ol>
+      <p class="rules-dialog-foot">게임 중 열면 시간이 멈추고, 닫으면 이어집니다. <kbd>P</kbd> 일시정지 · <kbd>R</kbd> 새 판</p>
+    </dialog>
+
+    <dialog class="rules-dialog history-dialog" id="history-dialog" aria-labelledby="history-title">
+      <div class="rules-dialog-head"><h2 id="history-title">플레이 기록</h2><button id="history-close" type="button" aria-label="플레이 기록 닫기">×</button></div>
+      <p class="rules-dialog-lead">점수는 모은 표본 수입니다. 완료한 판의 점수·시간·종료 원인을 이 브라우저에 저장합니다.</p>
+      <p id="history-progress" class="history-progress">비교 전 0/10 · 비교 후 0/10</p>
+      <p id="history-comparison" class="history-comparison">같은 경로에서 추적 경보만 +2와 +1로 비교합니다.</p>
+      <div class="history-modes"><a href="./game.html?qa=before">비교 전 (+2) 플레이</a><a href="./game.html?qa=after">비교 후 (+1) 플레이</a></div>
+      <div class="history-table-wrap"><table class="history-table"><thead><tr><th scope="col">번호</th><th scope="col">설정</th><th scope="col">점수</th><th scope="col">시간</th><th scope="col">경보</th><th scope="col">결과·원인</th></tr></thead><tbody id="history-body"><tr><td colspan="6">완료한 판이 없습니다.</td></tr></tbody></table></div>
+    </dialog>
+
+    <div class="under-game">
+      <p class="goal-recap"><strong>성공</strong> 표본 3개 이상·경보 4 이하 <strong>실패</strong> 경보 5 또는 표본 부족</p>
+      <p><strong>조작</strong> <kbd>↑</kbd> 위쪽 · <kbd>↓</kbd> 아래쪽 · <kbd>P</kbd> 일시정지 · <kbd>R</kbd> 새 판 <span id="input-count">명령 0회 · 전환 0회</span></p>
+      <div><button id="motion-button" type="button" aria-pressed="false">움직임 줄이기</button><span id="record-value">최고 표본 0개 · 탈출 0회</span><span id="qa-mode" hidden></span></div>
+    </div>
+  </main>
+  <noscript><p>게임을 실행하려면 JavaScript가 필요합니다.</p></noscript>
+</body>
+</html>
