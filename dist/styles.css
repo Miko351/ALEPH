@@ -86,8 +86,6 @@ body[data-effects="on"][data-phase="playing"] .gate.is-next::after { animation: 
 .actor { position: absolute; z-index: 6; width: 10%; height: 21%; transform: translate(-48%, -91%); pointer-events: none; will-change: left, top; }
 .actor img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(2px 6px 3px #000b); }
 .actor--specimen { top: 69%; width: 11.5%; height: 21.5%; }
-.actor-tag { position: absolute; bottom: 98%; left: 50%; transform: translateX(-50%); padding: 3px 8px; border: 1px solid #baf7c8; border-radius: 5px; color: #e6ffe5; background: #1c4a3fe8; box-shadow: 0 2px 7px #0009; font-size: clamp(10px, .9vw, 13px); font-weight: 900; white-space: nowrap; }
-.actor--specimen[data-mode="chase"] .actor-tag { border-color: #ff9e8a; color: #ffe0d4; background: #692e38ef; }
 .actor--specimen[data-mode="chase"] img { filter: drop-shadow(0 0 9px #ff655e) drop-shadow(2px 6px 3px #000b); }
 body[data-effects="on"][data-phase="playing"] .actor img { animation: actor-step .35s ease-in-out infinite alternate; }
 body[data-effects="on"][data-phase="playing"] .actor--specimen[data-mode="chase"] img { animation: creature-surge .18s ease-in-out infinite alternate; }
@@ -97,7 +95,7 @@ body[data-effects="on"][data-phase="playing"] .actor--specimen[data-mode="chase"
 .floor-glow--upper { background: #ffd17e; }
 .floor-glow--lower { top: 69%; background: #fb6d6b; }
 .actor--specimen[data-mode="chase"] ~ .floor-glow--lower { background: #ff6868; opacity: .9; }
-body[data-phase="lost"] .scene { animation: danger-flash .4s ease-in-out 2; }
+body[data-effects="on"][data-phase="lost"] .scene { animation: danger-flash .4s ease-in-out 2; }
 @keyframes danger-flash { 50% { filter: saturate(1.6) sepia(.2); } }
 
 .game-controls { position: absolute; z-index: 8; right: 17px; bottom: 17px; left: 17px; display: flex; align-items: end; justify-content: space-between; gap: 15px; pointer-events: none; }
@@ -106,8 +104,8 @@ body[data-phase="lost"] .scene { animation: danger-flash .4s ease-in-out 2; }
 .next-kicker { color: #b5ebd5; font-size: 12px; font-weight: 900; }
 .next-heading strong { flex: 1; font-size: 15px; }
 .next-heading > b { color: #ffe19a; font-size: 15px; font-variant-numeric: tabular-nums; }
-.creature-forecast { margin: 0 0 6px; padding: 4px 7px; border-left: 3px solid #a8f1c4; border-radius: 3px; color: #d8ffe3; background: #274b43; font-size: 12px; font-weight: 900; }
-.creature-forecast.is-chase { border-color: #ffa49a; color: #ffe1d5; background: #69363b; }
+.creature-forecast { margin: 0 2px 7px; padding: 5px 8px; border-left: 3px solid #a8e7c4; border-radius: 3px; color: #d7f5dc; background: #25483d; font-size: 12px; font-weight: 900; }
+.creature-forecast.is-chase { border-left-color: #ffad91; color: #ffe1d2; background: #623a38; }
 .route-choices { display: grid; gap: 5px; }
 .route-choice { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 39px; padding: 3px 8px; border: 2px solid #77918a; border-radius: 5px; background: #22363b; opacity: .83; }
 .route-choice.is-selected { border-color: #ffe19a; background: #344843; box-shadow: 0 0 0 1px #ffe19a80; opacity: 1; }
@@ -129,6 +127,13 @@ body[data-phase="lost"] .scene { animation: danger-flash .4s ease-in-out 2; }
 .direction-button strong { font-size: 14px; white-space: nowrap; }
 .small-button { width: 42px; height: 43px; border: 1px solid #d2be89; border-radius: 8px; color: #f7eaca; background: linear-gradient(#314443,#172a2e); box-shadow: 0 4px 0 #0a1b20; font-size: 22px; font-weight: 900; }
 .small-button:hover:not(:disabled) { background: #3d5a50; }
+.pause-button { display: grid; place-items: center; }
+.pause-glyph { position: relative; display: block; width: 16px; height: 19px; }
+.pause-glyph::before, .pause-glyph::after { content: ""; position: absolute; top: 0; width: 5px; height: 19px; border-radius: 1px; background: currentColor; }
+.pause-glyph::before { left: 1px; }
+.pause-glyph::after { right: 1px; }
+.pause-button.is-paused .pause-glyph::before { top: 0; left: 2px; width: 0; height: 0; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 15px solid currentColor; border-radius: 0; background: none; }
+.pause-button.is-paused .pause-glyph::after { display: none; }
 
 .opening { position: absolute; inset: 0; z-index: 12; display: flex; align-items: center; padding: 72px 4.5% 89px; background: linear-gradient(90deg,#061b20ec 0%,#061b20d7 29%,#061b2080 57%,#061b2020 100%); }
 .opening[hidden] { display: none; }
@@ -139,6 +144,16 @@ body[data-phase="lost"] .scene { animation: danger-flash .4s ease-in-out 2; }
 .start-button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 48px; padding: 0 16px; border: 1px solid #fff0b6; border-radius: 6px; color: #172b2a; background: linear-gradient(#ffe7a2,#e5b969); box-shadow: 0 5px 0 #78573c; text-align: left; font-size: 16px; font-weight: 900; }
 .start-button:hover { filter: brightness(1.1); }
 .start-button span { font-size: 22px; }
+.opening-mode-link { display: inline-block; margin-top: 14px; color: #e8f4d4; font-size: 13px; font-weight: 800; text-underline-offset: 3px; }
+.tutorial-tip { position: absolute; z-index: 11; top: 17%; left: 18px; width: min(390px, calc(100% - 36px)); padding: 17px 19px; border: 2px solid #f2d28d; border-radius: 11px; color: #fff3d7; background: #132b30f5; box-shadow: 0 8px 0 #07161abb, 0 18px 40px #000a; }
+.tutorial-tip[hidden] { display: none; }
+.tutorial-tip small { color: #aeead0; font-size: 11px; font-weight: 900; letter-spacing: .08em; }
+.tutorial-tip h2 { margin: 6px 0; font-size: 21px; }
+.tutorial-tip p { margin: 0 0 14px; color: #e0ecdb; font-size: 13px; line-height: 1.55; }
+.tutorial-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.tutorial-actions button { min-height: 37px; padding: 6px 11px; border: 1px solid #d7bb80; border-radius: 5px; color: #172924; background: #f2d28d; font-size: 12px; font-weight: 900; }
+.tutorial-actions button + button { color: #e6f0dd; background: #2d4e49; }
+.tutorial-actions button[hidden] { display: none; }
 
 .rules-dialog { width: min(560px, calc(100vw - 28px)); max-height: calc(100dvh - 32px); overflow: auto; padding: 20px 23px 22px; border: 2px solid #ddc089; border-radius: 12px; color: #f7f0d8; background: linear-gradient(145deg, #213a3d, #10252c); box-shadow: 0 18px 45px #000b; }
 .rules-dialog::backdrop { background: #061317bc; backdrop-filter: blur(3px); }
@@ -163,6 +178,9 @@ body[data-phase="lost"] .scene { animation: danger-flash .4s ease-in-out 2; }
 .history-table th { position: sticky; top: 0; color: #ffe2ac; background: #284440; }
 .history-table td { color: #e3eee0; background: #173036; }
 .history-table tbody tr:nth-child(even) td { background: #1e3a3d; }
+.leave-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 19px; }
+.leave-actions button, .leave-actions a { display: grid; place-items: center; min-height: 42px; flex: 1; padding: 8px 12px; border: 1px solid #b8d8b5; border-radius: 5px; color: #ebf3df; background: #2c534a; font-size: 13px; font-weight: 900; text-decoration: none; }
+.leave-actions a { border-color: #f0c48c; color: #261f1d; background: #f0c48c; }
 
 .under-game { width: min(100%, calc((100dvh - 145px) * 16 / 9)); margin: 20px auto 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #bcd4c9; font-size: 11px; }
 .goal-recap { display: none; }
@@ -190,7 +208,18 @@ body[data-phase="lost"] .scene { animation: danger-flash .4s ease-in-out 2; }
 .landing-start { display: flex; align-items: center; justify-content: space-between; width: min(420px, 100%); min-height: 64px; padding: 0 20px; border: 1px solid #fff0b6; border-radius: 7px; color: #172b2a; background: linear-gradient(#ffe7a2,#e5b969); box-shadow: 0 6px 0 #78573c, 0 13px 25px #0008; font-size: 20px; font-weight: 900; text-decoration: none; }
 .landing-start:hover { filter: brightness(1.1); }
 .landing-start span { font-size: 30px; }
+.landing-actions { width: min(420px, 100%); }
+.landing-secondary-actions { display: flex; gap: 9px; margin-top: 13px; }
+.landing-secondary-actions a, .landing-secondary-actions button { display: grid; place-items: center; min-height: 45px; flex: 1; padding: 7px 10px; border: 1px solid #91c4aa; border-radius: 6px; color: #e6f9e8; background: #224540eb; font-size: 14px; font-weight: 900; text-decoration: none; }
+.landing-secondary-actions a:hover, .landing-secondary-actions button:hover { background: #346452; }
 .landing-footnote { margin: 23px 0 0; color: #c4dcd0; font-size: 12px; line-height: 1.6; }
+.mode-dialog { width: min(760px, calc(100vw - 28px)); }
+.mode-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 17px; }
+.mode-options a { display: grid; align-content: start; gap: 8px; min-height: 144px; padding: 16px; border: 1px solid #afc6a9; border-radius: 7px; color: #f5f0d8; background: #1c3b3d; text-decoration: none; }
+.mode-options a:hover, .mode-options a:focus-visible { background: #30564a; }
+.mode-options span { color: #a8e7c4; font-size: 10px; font-weight: 900; letter-spacing: .08em; }
+.mode-options strong { color: #ffe4a4; font-size: 24px; }
+.mode-options small { color: #d6e9d6; font-size: 12px; line-height: 1.45; }
 .landing-specimen, .landing-tech { position: absolute; z-index: 1; pointer-events: none; }
 .landing-specimen { right: 2%; bottom: 5%; width: min(31%, 440px); height: 70%; filter: drop-shadow(0 0 25px #ff6a6255) drop-shadow(10px 20px 10px #000a); }
 .landing-tech { right: 24%; bottom: 5%; width: min(20%, 300px); height: 48%; filter: drop-shadow(10px 20px 10px #000c); }
@@ -217,6 +246,7 @@ body[data-phase="lost"] .scene { animation: danger-flash .4s ease-in-out 2; }
   .small-button { width: 32px; height: 34px; font-size: 17px; }
   .opening { padding: 70px 14px 100px; }
   .opening-card { width: min(525px, 100%); }
+  .tutorial-tip { top: 12%; }
   .under-game { flex-wrap: wrap; }
   .goal-recap { display: block; flex-basis: 100%; font-size: 12px; }
   .landing-content { width: min(620px, 76%); }
@@ -261,6 +291,7 @@ body[data-phase="lost"] .scene { animation: danger-flash .4s ease-in-out 2; }
   .direction-button > span { width: 24px; height: 24px; font-size: 18px; }
   .direction-button strong { font-size: 10px; }
   .small-button { width: 28px; }
+  .pause-glyph { transform: scale(.75); }
   .under-game { margin-top: 13px; line-height: 1.8; }
   .landing-shell { width: calc(100% - 14px); padding: 7px 0; }
   .landing-stage { min-height: calc(100dvh - 14px); padding: 32px 18px; background-position: 65% center; }
@@ -271,6 +302,9 @@ body[data-phase="lost"] .scene { animation: danger-flash .4s ease-in-out 2; }
   .landing-lead { font-size: 15px; }
   .landing-rules p { padding: 9px; font-size: 12px; }
   .landing-start { min-height: 56px; font-size: 17px; }
+  .mode-options { grid-template-columns: 1fr; }
+  .mode-options a { min-height: 0; gap: 4px; padding: 11px 13px; }
+  .mode-options strong { font-size: 20px; }
   .landing-specimen { right: -20%; bottom: 8%; width: 65%; opacity: .16; }
   .landing-stamp { display: none; }
 }

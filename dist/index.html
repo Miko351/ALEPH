@@ -6,25 +6,32 @@
   <meta name="theme-color" content="#0b161b">
   <link rel="icon" href="data:,">
   <title>온실 봉쇄 · 시작</title>
-  <meta name="description" content="탐사원의 길을 선택해 표본을 모으고 괴생물의 추적을 피하는 25초 브라우저 게임, 온실 봉쇄">
+  <meta name="description" content="제한 시간 안에 탐사원의 길을 선택해 표본을 모으고 괴생물의 추적을 피하는 브라우저 게임, 온실 봉쇄">
   <link rel="stylesheet" href="./styles.css">
+  <script src="./home.js" defer></script>
 </head>
 <body class="landing-page">
   <main class="landing-shell">
     <section class="landing-stage" aria-labelledby="landing-title">
       <div class="landing-content">
-        <p class="landing-eyebrow">25 SECOND SURVIVAL · BROWSER GAME</p>
+        <p class="landing-eyebrow">TIMED SURVIVAL · BROWSER GAME</p>
         <p class="landing-chapter">탐사 기록 01 / 온실 구역</p>
         <h1 id="landing-title">온실 봉쇄</h1>
         <p class="landing-lead">표본을 모으는 탐사원의 길은 당신이 결정합니다.<br>괴생물은 스스로 순찰하고 추적합니다.</p>
 
         <div class="landing-rules" aria-label="게임 핵심 규칙">
-          <p><strong>목표</strong><span>25초가 끝날 때 표본 3개 이상, 경보 4 이하</span></p>
+          <p><strong>목표</strong><span>제한 시간 안에 난이도별 표본 목표 달성</span></p>
           <p><strong>조작</strong><span><kbd>↑</kbd> 위쪽 길 · <kbd>↓</kbd> 아래쪽 길 선택</span></p>
           <p><strong>실패</strong><span>경보 5에 도달하거나 표본이 부족할 때</span></p>
         </div>
 
-        <a class="landing-start" href="./game.html">작전 시작 <span aria-hidden="true">➜</span></a>
+        <div class="landing-actions">
+          <button class="landing-start" id="choose-mode" type="button">작전 시작 <span aria-hidden="true">➜</span></button>
+          <div class="landing-secondary-actions">
+            <a href="./game.html?mode=tutorial">튜토리얼</a>
+            <button id="landing-history" type="button">플레이 기록</button>
+          </div>
+        </div>
         <p class="landing-footnote">게임 중 <kbd>P</kbd> 일시정지 · <kbd>R</kbd> 새 판 · 화면 버튼으로도 조작 가능</p>
       </div>
       <div class="landing-specimen" aria-hidden="true"><img src="./assets/specimen.png" alt=""></div>
@@ -32,5 +39,22 @@
       <span class="landing-stamp" aria-hidden="true">CONTAINMENT<br>BREACH</span>
     </section>
   </main>
+  <dialog class="rules-dialog mode-dialog" id="mode-dialog" aria-labelledby="mode-title">
+    <div class="rules-dialog-head"><h2 id="mode-title">난이도 선택</h2><button id="mode-close" type="button" aria-label="난이도 선택 닫기">×</button></div>
+    <p class="rules-dialog-lead">난이도가 올라갈수록 제한 시간은 짧아지고 관문은 많아집니다.</p>
+    <div class="mode-options">
+      <a href="./game.html?mode=easy"><span>EASY</span><strong>이지</strong><small>25초 · 관문 5개 · 표본 3개 이상</small></a>
+      <a href="./game.html?mode=normal"><span>NORMAL</span><strong>노말</strong><small>22초 · 관문 7개 · 표본 5개 이상</small></a>
+      <a href="./game.html?mode=hard"><span>HARD</span><strong>하드</strong><small>18초 · 관문 9개 · 표본 6개 이상 · 시작 경보 3</small></a>
+    </div>
+    <p class="rules-dialog-foot">모든 난이도에서 경보 5에 도달하면 즉시 실패합니다. 수치는 플레이 기록을 보고 조정할 수 있습니다.</p>
+  </dialog>
+  <dialog class="rules-dialog history-dialog" id="landing-history-dialog" aria-labelledby="landing-history-title">
+    <div class="rules-dialog-head"><h2 id="landing-history-title">플레이 기록</h2><button id="landing-history-close" type="button" aria-label="플레이 기록 닫기">×</button></div>
+    <p class="rules-dialog-lead">완료한 정식 판의 기록은 이 브라우저에만 저장됩니다. 튜토리얼과 중단한 판은 포함하지 않습니다.</p>
+    <p id="landing-history-summary" class="history-progress">완료한 판이 없습니다.</p>
+    <div class="history-table-wrap"><table class="history-table"><thead><tr><th scope="col">번호</th><th scope="col">설정</th><th scope="col">표본</th><th scope="col">시간</th><th scope="col">경보</th><th scope="col">결과·원인</th></tr></thead><tbody id="landing-history-body"><tr><td colspan="6">완료한 판이 없습니다.</td></tr></tbody></table></div>
+  </dialog>
+  <noscript><p>난이도 선택과 플레이 기록을 사용하려면 JavaScript가 필요합니다. <a href="./game.html?mode=tutorial">튜토리얼로 이동</a></p></noscript>
 </body>
 </html>
