@@ -7,6 +7,7 @@ import { dirname, extname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const siteRoot = resolve(root, 'dist');
 const profile = mkdtempSync(join(tmpdir(), 'aleph-card-c03-'));
 const chromePath = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const errors = [];
@@ -28,8 +29,8 @@ async function until(check, timeout = 10000) {
 async function main() {
   server = createServer((request, response) => {
     const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
-    const target = resolve(root, `.${pathname === '/' ? '/index.html' : pathname}`);
-    if (!target.startsWith(`${root}${sep}`)) { response.writeHead(403).end(); return; }
+    const target = resolve(siteRoot, `.${pathname === '/' ? '/index.html' : pathname}`);
+    if (!target.startsWith(`${siteRoot}${sep}`)) { response.writeHead(403).end(); return; }
     try {
       const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript' };
       response.writeHead(200, { 'Content-Type': mime[extname(target)] || 'application/octet-stream' }).end(readFileSync(target));
