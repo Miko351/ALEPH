@@ -92,7 +92,13 @@ h1, h2, h3, p { margin-top: 0; }
 .history-item p { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .history-item .history-updated { color: var(--text); font-weight: 700; }
 .history-updated time { color: var(--mint); }
-.history-source-link { display: inline-block; margin-top: 8px; font-size: 12px; }
+.history-snapshot { margin-top: 7px; font-size: 12px; }
+.history-snapshot summary { width: fit-content; color: var(--mint); cursor: pointer; text-decoration: underline; text-underline-offset: .24em; }
+.history-snapshot dl { margin: 10px 0 0; padding: 5px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.history-snapshot dl div { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 10px; padding: 7px 0; }
+.history-snapshot dl div + div { border-top: 1px solid var(--line); }
+.history-snapshot dt { color: var(--muted); }
+.history-snapshot dd { min-width: 0; margin: 0; color: var(--text); overflow-wrap: anywhere; }
 .history-empty { color: var(--muted); font-size: 13px; }
 .site-footer { min-height: 85px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
 
@@ -140,6 +146,7 @@ h1, h2, h3, p { margin-top: 0; }
   .temperature-bottom { align-items: stretch; flex-direction: column; }
   .refresh-button { width: 100%; }
   .source-list div { grid-template-columns: 95px minmax(0, 1fr); }
+  .history-snapshot dl div { grid-template-columns: 1fr; gap: 2px; }
   .site-footer { align-items: start; flex-direction: column; justify-content: center; gap: 5px; }
   .control-group button { align-items: start; flex-direction: column; gap: 2px; }
 }

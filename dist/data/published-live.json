@@ -2,6 +2,45 @@
   "schema_version": 1,
   "daily_readings": [
     {
+      "record_id": "daejeon-temperature-2m:2026-09-28",
+      "signal_id": "daejeon-temperature-2m",
+      "record_date": "2026-09-28",
+      "normalized_value": 21.0,
+      "unit": "°C",
+      "first_fetched_at": "2026-09-28T06:22:00.000Z",
+      "last_fetched_at": "2026-09-28T06:22:00.000Z",
+      "reading": {
+        "signal_id": "daejeon-temperature-2m",
+        "normalized_value": 21.0,
+        "unit": "°C",
+        "source_name": "Open-Meteo Forecast API · 모델 기반 현재 기온",
+        "source_url": "https://api.open-meteo.com/v1/forecast?latitude=36.35&longitude=127.38&current=temperature_2m&timezone=Asia%2FSeoul",
+        "source_time": "2026-09-28T06:15:00.000Z",
+        "fetched_at": "2026-09-28T06:22:00.000Z",
+        "record_timezone": "Asia/Seoul",
+        "record_date": "2026-09-28"
+      },
+      "raw_response": {
+        "latitude": 36.35,
+        "longitude": 127.375,
+        "generationtime_ms": 0.018596649169921875,
+        "utc_offset_seconds": 32400,
+        "timezone": "Asia/Seoul",
+        "timezone_abbreviation": "GMT+9",
+        "elevation": 60.0,
+        "current_units": {
+          "time": "iso8601",
+          "interval": "seconds",
+          "temperature_2m": "°C"
+        },
+        "current": {
+          "time": "2026-09-28T15:15",
+          "interval": 900,
+          "temperature_2m": 21.0
+        }
+      }
+    },
+    {
       "record_id": "daejeon-temperature-2m:2026-09-29",
       "signal_id": "daejeon-temperature-2m",
       "record_date": "2026-09-29",

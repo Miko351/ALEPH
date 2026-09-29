@@ -93,6 +93,18 @@ const stored = applySuccess(emptyState(), reading, { raw_response: raw });
 assert.deepEqual(stored.daily_readings[0].raw_response, raw);
 assert.deepEqual(restoreState(stored).current_reading, reading);
 assert.equal(mergeDailyStates(stored, stored).daily_readings.length, 1);
+const laterReading = { ...reading, normalized_value: 24.6, fetched_at: '2026-09-29T02:40:00.000Z' };
+const localLater = applySuccess(emptyState(), laterReading, {
+  raw_response: { ...raw, current: { ...raw.current, temperature_2m: 24.6 } }
+});
+const updated = mergeDailyStates(stored, localLater);
+assert.equal(updated.daily_readings.length, 1);
+assert.equal(updated.daily_readings[0].normalized_value, 24.6);
+assert.equal(updated.daily_readings[0].last_fetched_at, laterReading.fetched_at);
+assert.equal(updated.last_delta, null);
+assert.equal(localLater.daily_readings[0].normalized_value, 24.6);
+assert.equal(mergeDailyStates(localLater, stored).daily_readings[0].normalized_value, 24.6);
+console.log('같은 날짜 재조회: 최신 조회값 24.6으로 한 행 갱신 PASS');
 assert.throws(() => normalizeLive({ ...raw, current: { ...raw.current, temperature_2m: '21.4' } }, fetchedAt));
 assert.throws(() => restoreState({ schema_version: 1, daily_readings: [{ bad: true }] }));
 assert.equal(applyError(stored, 'offline').daily_readings[0].normalized_value, 21.4);

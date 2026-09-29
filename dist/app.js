@@ -14,6 +14,7 @@ const ERROR_COPY = Object.freeze({
 });
 
 let liveState = emptyState();
+let localState = emptyState();
 let publishedState = emptyState();
 let fetching = false;
 let storageWarning = '';
@@ -40,7 +41,7 @@ function setMessage(message, error = false) {
 }
 
 function saveLive() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(liveState)); }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(localState)); }
   catch { storageWarning = '브라우저에 기록하지 못했습니다. 새로고침하면 새 기록이 사라질 수 있습니다.'; }
 }
 
@@ -80,13 +81,29 @@ function renderHistory() {
     const sourceTime = document.createElement('p');
     sourceTime.className = 'history-source';
     sourceTime.textContent = `자료 기준 ${formatTime(row.reading.source_time)} · ${published ? '공개 기록' : '이 브라우저에 저장'}`;
-    const sourceLink = document.createElement('a');
-    sourceLink.className = 'history-source-link';
-    sourceLink.href = row.reading.source_url;
-    sourceLink.target = '_blank';
-    sourceLink.rel = 'noopener noreferrer';
-    sourceLink.textContent = '원천 주소 열기';
-    item.append(heading, updated, sourceTime, sourceLink);
+    item.append(heading, updated, sourceTime);
+    const snapshot = document.createElement('details');
+    snapshot.className = 'history-snapshot';
+    const summary = document.createElement('summary');
+    summary.textContent = '이 날짜의 기록 정보 보기';
+    const facts = document.createElement('dl');
+    const addFact = (label, content, className) => {
+      const pair = document.createElement('div');
+      const term = document.createElement('dt');
+      const value = document.createElement('dd');
+      term.textContent = label;
+      value.textContent = content;
+      if (className) value.className = className;
+      pair.append(term, value);
+      facts.append(pair);
+    };
+    const raw = row.raw_response;
+    addFact('저장된 응답의 자료 시각', typeof raw?.current?.time === 'string'
+      ? `${raw.current.time} (${raw.timezone || '시간대 미기록'})` : '응답 사본 없음');
+    addFact('저장된 응답의 기온', Number.isFinite(raw?.current?.temperature_2m) && typeof raw?.current_units?.temperature_2m === 'string'
+      ? `${raw.current.temperature_2m} ${raw.current_units.temperature_2m}` : '응답 사본 없음');
+    snapshot.append(summary, facts);
+    item.append(snapshot);
     list.append(item);
   }
 }
@@ -101,7 +118,7 @@ function renderLive() {
   $('source-time').textContent = reading ? formatTime(reading.source_time) : '—';
   $('fetched-time').textContent = reading ? formatTime(reading.fetched_at) : '—';
   $('record-date').textContent = reading?.record_date || '—';
-  $('source-link').href = reading?.source_url || 'https://open-meteo.com/en/docs';
+  $('source-url').textContent = reading?.source_url || SOURCE_URL;
   badge.className = 'badge';
   if (status?.freshness === 'stale') {
     badge.classList.add('badge-stale');
@@ -112,7 +129,7 @@ function renderLive() {
   } else if (status?.freshness === 'fresh') {
     badge.classList.add('badge-fresh');
     badge.textContent = '정상 조회';
-    $('live-context').textContent = '새 값을 확인했습니다. 자료 기준 시각과 조회 시각을 함께 확인하세요.';
+    $('live-context').textContent = '새 값을 확인했습니다. 이 브라우저의 날짜별 기록에도 반영했습니다.';
   } else {
     badge.classList.add('badge-neutral');
     badge.textContent = reading ? '저장된 값' : '조회 전';
@@ -151,17 +168,27 @@ async function refreshLive() {
     phase = 'parse';
     const raw = await response.json();
     const reading = normalizeLive(raw, new Date().toISOString());
-    liveState = applySuccess(liveState, reading, { raw_response: raw });
+    const hadToday = liveState.daily_readings.some(row =>
+      row.signal_id === reading.signal_id && row.record_date === reading.record_date);
+    localState = applySuccess(localState, reading, { raw_response: raw });
+    liveState = mergeDailyStates(publishedState, localState);
+    liveState.current_reading = reading;
+    liveState.status = localState.status;
+    liveState.last_run = localState.last_run;
     saveLive();
     renderLive();
-    setMessage(`${reading.record_date} 기록을 저장했습니다. ${storageWarning}`.trim());
+    setMessage(`이 브라우저의 ${reading.record_date} 기록을 ${hadToday ? '갱신' : '저장'}했습니다. ${storageWarning}`.trim());
   } catch (error) {
     const code = error.code || (controller.signal.aborted ? 'timeout' : phase === 'parse' ? 'schema_error' : 'offline');
-    liveState = applyError(liveState, code, { retry_after_seconds: error.retryAfter });
+    localState = applyError(localState, code, { retry_after_seconds: error.retryAfter });
+    liveState = mergeDailyStates(publishedState, localState);
+    liveState.current_reading = localState.current_reading || liveState.current_reading;
+    liveState.status = localState.status;
+    liveState.last_run = localState.last_run;
     saveLive();
     renderLive();
     const copy = describeError(code, error.retryAfter);
-    setMessage(`${copy.title} ${copy.description} ${copy.action} 마지막 정상값은 보존했습니다.`, true);
+    setMessage(`${copy.title} ${copy.description} ${copy.action} ${liveState.current_reading ? '마지막 정상값은 보존했습니다.' : '보존된 정상값은 없습니다.'}`, true);
   } finally {
     clearTimeout(timer);
     fetching = false;
@@ -178,15 +205,14 @@ async function loadStored() {
     publishedState = emptyState();
     storageWarning = '공개 기록 파일을 읽지 못했습니다.';
   }
-  let local = emptyState();
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) local = restoreState(JSON.parse(saved));
+    if (saved) localState = restoreState(JSON.parse(saved));
   } catch { storageWarning = '이 브라우저의 이전 저장값이 손상돼 사용하지 않았습니다.'; }
-  liveState = mergeDailyStates(publishedState, local);
+  liveState = mergeDailyStates(publishedState, localState);
   renderLive();
+  setMessage(`${liveState.current_reading ? '저장된 기록입니다. 최신 기온은 다시 조회로 확인하세요.' : '새 기온을 확인하려면 다시 조회를 누르세요.'} ${storageWarning}`.trim());
 }
 
 $('live-refresh').addEventListener('click', refreshLive);
 await loadStored();
-refreshLive();

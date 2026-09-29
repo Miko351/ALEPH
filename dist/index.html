@@ -37,20 +37,21 @@
         </div>
         <div class="temperature-middle">
           <div class="temperature-value"><strong id="live-value">—</strong><span id="live-unit">°C</span></div>
-          <p id="live-context">공개 원천에 연결하고 있습니다.</p>
+          <p id="live-context">저장된 기록을 불러오는 중입니다.</p>
         </div>
         <div class="temperature-bottom">
-          <div class="delta-block"><span>이전 기록 대비</span><strong id="live-delta">두 날짜가 모이면 표시</strong></div>
+          <div class="delta-block"><span>날짜별 기록의 이전 날짜 대비</span><strong id="live-delta">두 날짜가 모이면 표시</strong></div>
           <button id="live-refresh" type="button" class="refresh-button">다시 조회 <span aria-hidden="true">↗</span></button>
         </div>
       </section>
-      <p id="live-status" class="live-status" role="status" aria-live="polite">실제 기온을 조회 중입니다.</p>
+      <p id="live-status" class="live-status" role="status" aria-live="polite">저장된 기록을 불러오는 중입니다.</p>
 
       <div class="details-grid">
         <section class="surface-card source-card" aria-labelledby="source-title">
           <div class="card-heading"><h2 id="source-title">이 값은 어디서 왔나요?</h2><span class="card-mark" aria-hidden="true">↗</span></div>
           <dl class="source-list">
             <div><dt>출처</dt><dd><a id="source-link" href="https://open-meteo.com/en/docs" target="_blank" rel="noopener noreferrer">Open-Meteo Forecast API</a></dd></div>
+            <div><dt>공통 원천 URL</dt><dd id="source-url">—</dd></div>
             <div><dt>자료 기준 시각</dt><dd id="source-time">—</dd></div>
             <div><dt>조회 시각</dt><dd id="fetched-time">—</dd></div>
             <div><dt>조회 날짜</dt><dd id="record-date">—</dd></div>
@@ -61,7 +62,7 @@
 
         <section class="surface-card history-card" aria-labelledby="history-title">
           <div class="card-heading"><h2 id="history-title">날짜별 기록</h2><span id="row-count" class="count-chip">0일</span></div>
-          <p class="card-intro">같은 KST 날짜에 다시 조회하면 그날의 기록을 갱신합니다.</p>
+          <p class="card-intro">같은 KST 날짜에 다시 조회하면 한 줄의 값과 조회 시각을 갱신합니다. 날짜별 기록을 열면 그날 저장한 응답의 시각과 기온을 볼 수 있습니다.</p>
           <ol id="history-list" class="history-list"><li class="history-empty">아직 저장된 실제 날짜 기록이 없습니다.</li></ol>
         </section>
       </div>
