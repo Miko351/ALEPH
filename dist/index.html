@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f1e9">
+  <link rel="icon" href="data:,">
+  <title>짤·카드 스튜디오</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>짤·카드 스튜디오</h1>
+        <p class="subtitle">이미지에 문구를 얹고, 바로 확인한 뒤 PNG로 내려받으세요.</p>
+      </div>
+      <span class="local-note">브라우저에서 이미지 처리 · 서버 업로드 없음</span>
+    </header>
+
+    <main class="workspace">
+      <section class="editor" aria-labelledby="editor-title">
+        <div class="section-heading">
+          <span class="section-index">01</span>
+          <h2 id="editor-title">편집 도구</h2>
+        </div>
+
+        <section class="tool-card" aria-labelledby="image-title">
+          <div class="tool-heading"><h3 id="image-title">이미지</h3><span>PNG · JPEG</span></div>
+          <label for="image-input">이미지 파일 선택</label>
+          <input id="image-input" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" aria-describedby="image-status">
+          <p id="image-status" class="field-note" role="status">이미지를 선택하면 미리보기에 적용됩니다. 현재는 기본 배경입니다.</p>
+        </section>
+
+        <section class="tool-card ratio-card" aria-labelledby="ratio-title">
+          <div class="tool-heading"><h3 id="ratio-title">화면 비율</h3><span>미리보기 · 다운로드 공통</span></div>
+          <div class="ratio-options" role="group" aria-label="화면 비율">
+            <button type="button" data-ratio="square" aria-pressed="true">1:1</button>
+            <button type="button" data-ratio="portrait" aria-pressed="false">4:5</button>
+            <button type="button" data-ratio="story" aria-pressed="false">9:16</button>
+          </div>
+        </section>
+
+        <section class="tool-card" aria-labelledby="text-title">
+          <div class="tool-heading"><h3 id="text-title">문구</h3><span>입력 즉시 반영</span></div>
+          <label for="caption">넣을 문구</label>
+          <textarea id="caption" rows="2" spellcheck="false">오늘의 한 장</textarea>
+          <div class="control-row">
+            <label for="text-x">가로 위치 <output id="text-x-value" for="text-x">50%</output></label>
+            <input id="text-x" type="range" min="10" max="90" value="50">
+          </div>
+          <div class="control-row">
+            <label for="text-y">세로 위치 <output id="text-y-value" for="text-y">74%</output></label>
+            <input id="text-y" type="range" min="10" max="90" value="74">
+          </div>
+          <div class="control-pair">
+            <div class="control-row">
+              <label for="font-size">문구 크기 <output id="font-size-value" for="font-size">72px</output></label>
+              <input id="font-size" type="range" min="24" max="144" step="2" value="72">
+            </div>
+            <div class="color-control">
+              <label for="text-color">문구 색</label>
+              <input id="text-color" type="color" value="#ffffff">
+            </div>
+          </div>
+        </section>
+
+      </section>
+
+      <section class="preview" aria-labelledby="preview-title">
+        <div class="section-heading preview-heading">
+          <div><span class="section-index">02</span><h2 id="preview-title">미리보기</h2></div>
+          <div class="preview-heading-actions"><span class="ratio-badge" id="ratio-badge">1:1 · 1080 × 1080</span><button id="download" class="download-button" type="button">PNG 내려받기 <span aria-hidden="true">↗</span></button></div>
+        </div>
+        <div class="preview-stage">
+          <canvas id="preview-canvas" width="1080" height="1080" role="img" aria-label="편집 중인 이미지 미리보기"></canvas>
+        </div>
+        <p class="preview-caption" id="preview-status" role="status">미리보기와 내려받기는 같은 합성 화면을 사용합니다.</p>
+      </section>
+    </main>
+
+    <section class="library" aria-labelledby="library-title">
+      <div class="section-heading"><span class="section-index">03</span><h2 id="library-title">내 템플릿</h2></div>
+      <p class="library-intro">현재 이미지·문구·비율을 템플릿으로 저장하고 나중에 다시 불러올 수 있습니다.</p>
+      <div class="library-layout">
+        <div class="library-card">
+          <label for="template-name">템플릿 이름</label>
+          <input id="template-name" type="text" maxlength="60" placeholder="예: 짧은 문구 카드">
+          <div class="library-actions">
+            <button id="template-create" type="button">새 템플릿 저장</button>
+            <button id="template-update" type="button" disabled>선택한 템플릿 수정</button>
+          </div>
+          <p id="template-status" class="field-note" role="status">저장된 템플릿이 없습니다.</p>
+          <ul id="template-list" class="template-list" aria-label="저장된 템플릿"></ul>
+        </div>
+        <div class="library-card">
+          <h3>JSON으로 옮기기</h3>
+          <p>템플릿 목록과 합성용 이미지를 JSON 파일로 내보내거나 다시 가져옵니다.</p>
+          <button id="json-export" type="button">JSON 내보내기</button>
+          <label for="json-import">JSON 파일 가져오기</label>
+          <input id="json-import" type="file" accept=".json,application/json" aria-describedby="json-status">
+          <p id="json-status" class="field-note" role="status">가져오기 전 전체 형식을 검사합니다.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
