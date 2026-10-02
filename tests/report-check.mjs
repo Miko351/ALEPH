@@ -86,6 +86,7 @@ async function main() {
     handoffItems: document.querySelectorAll('.handoff-grid article').length,
     measures: [...document.querySelectorAll('.comparison-table tbody tr')].map(row => row.innerText),
     parentLinks: document.querySelectorAll('a[href^="../"]').length,
+    studioPath: new URL(document.querySelector('.tool-link').href).pathname,
     stylesPath: new URL(document.querySelector('link[rel="stylesheet"]').href).pathname,
     handoffPaths: [...document.querySelectorAll('a[href$="HANDOFF.md"]')].map(link => new URL(link.href).pathname),
     styled: getComputedStyle(document.querySelector('.hero')).display === 'grid',
@@ -100,6 +101,7 @@ async function main() {
   assert.equal(summary.handoffItems, 7);
   assert.equal(summary.measures.length, 2);
   assert.equal(summary.parentLinks, 0, '배포 루트 밖으로 향하는 링크가 있음');
+  assert.equal(summary.studioPath, '/', '카드 스튜디오로 돌아가는 링크 경로가 다름');
   assert.equal(summary.stylesPath, '/report/styles.css');
   assert.deepEqual(summary.handoffPaths, ['/report/HANDOFF.md', '/report/HANDOFF.md']);
   assert.equal(summary.styled, true, '/report에서 보고서 스타일이 적용되지 않음');
@@ -124,10 +126,11 @@ async function main() {
   await call('Page.navigate', { url: `${base}/report/` });
   await until(() => page('location.pathname === "/report/" && document.readyState === "complete"'));
   assert.equal(await page('getComputedStyle(document.querySelector(".hero")).display'), 'grid', '/report/에서 보고서 스타일이 적용되지 않음');
-  for (const file of ['/report/styles.css', '/report/HANDOFF.md', '/index.html', '/styles.css']) {
+  for (const file of ['/', '/report/styles.css', '/report/HANDOFF.md', '/index.html', '/styles.css']) {
     const response = await fetch(`${base}${file}`);
     assert.equal(response.status, 200, `${file} 연결 실패`);
   }
+  assert.match(await (await fetch(`${base}/`)).text(), /짤·카드 스튜디오/);
   const publishedHandoff = await (await fetch(`${base}/report/HANDOFF.md`)).text();
   const sourceHandoff = readFileSync(resolve(root, '..', 'HANDOFF.md'), 'utf8');
   assert.equal(publishedHandoff.replaceAll('\r\n', '\n').trimEnd(), sourceHandoff.replaceAll('\r\n', '\n').trimEnd());

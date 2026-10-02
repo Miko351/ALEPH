@@ -25,8 +25,8 @@ a:focus-visible, summary:focus-visible { outline: 3px solid #a94d2b; outline-off
 .topbar { min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--line); }
 .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.035em; }
 .brand-mark { width: 21px; height: 21px; display: inline-block; border-radius: 50%; background: var(--green); box-shadow: inset 0 0 0 6px var(--mint); }
-.topbar-date { color: var(--muted); font-size: 13px; font-weight: 750; }
-.text-link:hover, .secondary-link:hover { color: var(--green); }
+.tool-link { font-size: 14px; font-weight: 750; text-underline-offset: 4px; }
+.tool-link:hover, .text-link:hover, .secondary-link:hover { color: var(--green); }
 
 .hero { min-height: 580px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(360px, .75fr); align-items: center; gap: clamp(44px, 7vw, 116px); padding: clamp(58px, 8vw, 118px) 0 98px; }
 .eyebrow { margin: 0 0 16px; color: var(--green); font-size: 13px; font-weight: 850; letter-spacing: .12em; }
@@ -122,7 +122,7 @@ code { font-family: Consolas, "Courier New", monospace; font-size: .94em; }
   .page { width: min(100% - 32px, 1500px); }
   .topbar { min-height: 66px; }
   .brand { font-size: 13px; }
-  .topbar-date { font-size: 11px; }
+  .tool-link { font-size: 12px; }
   .hero { padding: 57px 0 70px; }
   h1 { font-size: clamp(46px, 12vw, 68px); }
   .lead { margin-top: 24px; font-size: 16px; }
