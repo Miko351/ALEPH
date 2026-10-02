@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { dirname, extname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'dist', 'report');
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'dist');
 const profile = mkdtempSync(join(tmpdir(), 'aleph-report-check-'));
 const chromePath = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 let server;
@@ -27,7 +27,7 @@ async function until(check, timeout = 10000) {
 async function main() {
   server = createServer((request, response) => {
     const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
-    const file = pathname.endsWith('/') ? `${pathname}index.html` : pathname;
+    const file = pathname === '/report' ? '/report/index.html' : pathname.endsWith('/') ? `${pathname}index.html` : pathname;
     const target = resolve(root, `.${file}`);
     if (!target.startsWith(`${root}${sep}`)) { response.writeHead(403).end(); return; }
     try {
@@ -40,7 +40,7 @@ async function main() {
 
   browser = spawn(chromePath, [
     '--headless=new', '--no-sandbox', '--disable-gpu', '--mute-audio', '--no-first-run',
-    '--disable-extensions', '--remote-debugging-port=0', `--user-data-dir=${profile}`, `${base}/`
+    '--disable-extensions', '--remote-debugging-port=0', `--user-data-dir=${profile}`, `${base}/report`
   ], { stdio: 'ignore', windowsHide: true });
   const activePort = join(profile, 'DevToolsActivePort');
   await until(() => existsSync(activePort));
@@ -75,8 +75,8 @@ async function main() {
   }
   await call('Runtime.enable');
   await call('Page.enable');
-  await call('Page.navigate', { url: `${base}/` });
-  await until(() => page('location.pathname === "/" && document.readyState === "complete"'));
+  await call('Page.navigate', { url: `${base}/report` });
+  await until(() => page('location.pathname === "/report" && document.readyState === "complete"'));
 
   const summary = await page(`(() => ({
     title: document.title,
@@ -86,17 +86,23 @@ async function main() {
     handoffItems: document.querySelectorAll('.handoff-grid article').length,
     measures: [...document.querySelectorAll('.comparison-table tbody tr')].map(row => row.innerText),
     parentLinks: document.querySelectorAll('a[href^="../"]').length,
+    stylesPath: new URL(document.querySelector('link[rel="stylesheet"]').href).pathname,
+    handoffPaths: [...document.querySelectorAll('a[href$="HANDOFF.md"]')].map(link => new URL(link.href).pathname),
+    styled: getComputedStyle(document.querySelector('.hero')).display === 'grid',
     names: /GPT-|OpenAI|Claude|Gemini/i.test(document.body.innerText)
   }))()`);
   assert.equal(summary.h1, 1);
   assert.equal(summary.fixedRows, 10);
-  const fixedRows = readFileSync(resolve(root, '..', '..', 'FIXED_TESTS.md'), 'utf8')
+  const fixedRows = readFileSync(resolve(root, '..', 'FIXED_TESTS.md'), 'utf8')
     .split(/\r?\n/).filter(line => /^\| D\d\d \|/.test(line))
     .map(line => line.split('|').slice(1, 4).map(cell => cell.trim()));
   assert.deepEqual(summary.tests, fixedRows, '공개 검사표의 ID·입력·기대값이 고정 원문과 다름');
   assert.equal(summary.handoffItems, 7);
   assert.equal(summary.measures.length, 2);
   assert.equal(summary.parentLinks, 0, '배포 루트 밖으로 향하는 링크가 있음');
+  assert.equal(summary.stylesPath, '/report/styles.css');
+  assert.deepEqual(summary.handoffPaths, ['/report/HANDOFF.md', '/report/HANDOFF.md']);
+  assert.equal(summary.styled, true, '/report에서 보고서 스타일이 적용되지 않음');
   assert.equal(summary.names, false, '공개 비교 화면에 모델·서비스 이름이 보임');
   assert.match(summary.measures[0], /7\s*\/\s*10/);
   assert.match(summary.measures[1], /10\s*\/\s*10/);
@@ -115,12 +121,15 @@ async function main() {
     }
   }
 
-  for (const file of ['/styles.css', '/HANDOFF.md', '/index.html']) {
+  await call('Page.navigate', { url: `${base}/report/` });
+  await until(() => page('location.pathname === "/report/" && document.readyState === "complete"'));
+  assert.equal(await page('getComputedStyle(document.querySelector(".hero")).display'), 'grid', '/report/에서 보고서 스타일이 적용되지 않음');
+  for (const file of ['/report/styles.css', '/report/HANDOFF.md', '/index.html', '/styles.css']) {
     const response = await fetch(`${base}${file}`);
     assert.equal(response.status, 200, `${file} 연결 실패`);
   }
-  const publishedHandoff = await (await fetch(`${base}/HANDOFF.md`)).text();
-  const sourceHandoff = readFileSync(resolve(root, '..', '..', 'HANDOFF.md'), 'utf8');
+  const publishedHandoff = await (await fetch(`${base}/report/HANDOFF.md`)).text();
+  const sourceHandoff = readFileSync(resolve(root, '..', 'HANDOFF.md'), 'utf8');
   assert.equal(publishedHandoff.replaceAll('\r\n', '\n').trimEnd(), sourceHandoff.replaceAll('\r\n', '\n').trimEnd());
   console.log('보고서 구조·링크·인수인계 원문 일치 PASS');
 }
