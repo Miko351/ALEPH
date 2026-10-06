@@ -1,0 +1,423 @@
+{
+  "version": 1,
+  "tables": {
+    "plans": [
+      {
+        "id": "7d5b5949-42b4-4bc3-8379-6ec4f4e23599",
+        "title": "ALEPH_APP_CAPSTONE 통합 검증·재수정",
+        "start_date": "2026-10-06",
+        "end_date": "",
+        "priority": "high",
+        "success_criteria": "통합본에서 공격 입력 후 사건 큐·상세 설명·관리자 판단·SOAR 조치·보고서·감사 이력을 확인하고, 발견한 문제를 담당 부분에서 수정·재통합한 뒤 같은 시나리오로 재검증한다.",
+        "estimate_minutes": 0,
+        "carried_note": "통합본에서 문제를 발견하면 담당 부분을 수정·재통합한 뒤 같은 시나리오로 다시 검증한다.",
+        "revision": 1,
+        "created_at": "2026-10-06T14:31:07.886Z",
+        "updated_at": "2026-10-06T14:31:07.886Z"
+      },
+      {
+        "id": "92567208-e776-4542-b36a-073aa89b6fa1",
+        "title": "ALEPH_APP_CAPSTONE",
+        "start_date": "2026-09-17",
+        "end_date": "",
+        "priority": "high",
+        "success_criteria": "통합 실행본에서 공격 입력부터 탐지 사건·관리자 판단·SOAR 조치 결과까지 확인하고, 관제 화면에서 보고서와 감사 이력을 조회할 수 있다.",
+        "estimate_minutes": 0,
+        "carried_note": "",
+        "revision": 2,
+        "created_at": "2026-10-06T07:00:56.227Z",
+        "updated_at": "2026-10-06T13:53:55.446Z"
+      }
+    ],
+    "plan_versions": [
+      {
+        "id": "4cf0d19f-48a8-4b1c-9b1c-366d20e33e0a",
+        "plan_id": "7d5b5949-42b4-4bc3-8379-6ec4f4e23599",
+        "revision": 1,
+        "title": "ALEPH_APP_CAPSTONE 통합 검증·재수정",
+        "start_date": "2026-10-06",
+        "end_date": "",
+        "priority": "high",
+        "success_criteria": "통합본에서 공격 입력 후 사건 큐·상세 설명·관리자 판단·SOAR 조치·보고서·감사 이력을 확인하고, 발견한 문제를 담당 부분에서 수정·재통합한 뒤 같은 시나리오로 재검증한다.",
+        "estimate_minutes": 0,
+        "carried_note": "통합본에서 문제를 발견하면 담당 부분을 수정·재통합한 뒤 같은 시나리오로 다시 검증한다.",
+        "saved_at": "2026-10-06T14:31:07.886Z"
+      },
+      {
+        "id": "027a83d1-1e41-47f4-919a-ee222f637aec",
+        "plan_id": "92567208-e776-4542-b36a-073aa89b6fa1",
+        "revision": 1,
+        "title": "ALEPH_APP_CAPSTONE",
+        "start_date": "2026-09-17",
+        "end_date": "",
+        "priority": "high",
+        "success_criteria": "기획한 관리자 UI를 완성하고 탐지·SOAR 흐름을 확인할 수 있다.",
+        "estimate_minutes": 0,
+        "carried_note": "",
+        "saved_at": "2026-10-06T07:00:56.227Z"
+      },
+      {
+        "id": "36399beb-b79c-4974-a49d-b3e4b7e9d1c9",
+        "plan_id": "92567208-e776-4542-b36a-073aa89b6fa1",
+        "revision": 2,
+        "title": "ALEPH_APP_CAPSTONE",
+        "start_date": "2026-09-17",
+        "end_date": "",
+        "priority": "high",
+        "success_criteria": "통합 실행본에서 공격 입력부터 탐지 사건·관리자 판단·SOAR 조치 결과까지 확인하고, 관제 화면에서 보고서와 감사 이력을 조회할 수 있다.",
+        "estimate_minutes": 0,
+        "carried_note": "",
+        "saved_at": "2026-10-06T13:53:55.446Z"
+      }
+    ],
+    "tasks": [
+      {
+        "id": "db2f7979-d8af-44ac-8d0b-8f147b8311e5",
+        "plan_id": "92567208-e776-4542-b36a-073aa89b6fa1",
+        "title": "AI SOAR 관리자 관제 화면 시안 및 기본 틀 제작",
+        "deadline": "2026-09-29",
+        "priority": "medium",
+        "tag": "관제 UI",
+        "estimate_minutes": 145,
+        "status": "completed",
+        "completion_cycle": 0,
+        "last_completion_request_key": "f83c81be-f0e1-4911-8139-b8ad260ae10c",
+        "completed_at": "2026-10-06T07:08:29.075Z",
+        "deleted_at": null,
+        "created_at": "2026-10-06T07:08:29.072Z",
+        "updated_at": "2026-10-06T15:09:06.213Z",
+        "estimate_basis": "retrospective"
+      },
+      {
+        "id": "543bc50e-3f4a-4a9f-9f14-8177136b2890",
+        "plan_id": "92567208-e776-4542-b36a-073aa89b6fa1",
+        "title": "관리자 관제 UI 보고서 열람 및 감사 이력 조회 개선",
+        "deadline": "2026-09-30",
+        "priority": "medium",
+        "tag": "보고서·감사",
+        "estimate_minutes": 138,
+        "status": "completed",
+        "completion_cycle": 0,
+        "last_completion_request_key": "d278e72c-f7c8-4c34-8ff2-ba27562630b0",
+        "completed_at": "2026-10-06T07:08:29.079Z",
+        "deleted_at": null,
+        "created_at": "2026-10-06T07:08:29.077Z",
+        "updated_at": "2026-10-06T14:58:14.726Z",
+        "estimate_basis": "retrospective"
+      },
+      {
+        "id": "9f9f2445-a357-46a2-91bd-d47dc79dcf0b",
+        "plan_id": "92567208-e776-4542-b36a-073aa89b6fa1",
+        "title": "이벤트 큐 정렬·필터 동작 점검 및 수정",
+        "deadline": "",
+        "priority": "medium",
+        "tag": "관제 UI",
+        "estimate_minutes": 156,
+        "status": "completed",
+        "completion_cycle": 0,
+        "last_completion_request_key": "a4c6f766-0180-4a5a-b8dd-b4bef99ca3a6",
+        "completed_at": "2026-10-06T14:58:14.737Z",
+        "deleted_at": null,
+        "created_at": "2026-10-06T07:08:29.081Z",
+        "updated_at": "2026-10-06T14:58:14.737Z",
+        "estimate_basis": "retrospective"
+      },
+      {
+        "id": "bffcb655-4949-48c6-91d7-ca818209be86",
+        "plan_id": "92567208-e776-4542-b36a-073aa89b6fa1",
+        "title": "탐지 근거 로그·AI 해석 표시 수정",
+        "deadline": "",
+        "priority": "medium",
+        "tag": "탐지",
+        "estimate_minutes": 90,
+        "status": "completed",
+        "completion_cycle": 0,
+        "last_completion_request_key": "0a72b4d1-c3df-45ec-a1c0-204426ab0fef",
+        "completed_at": "2026-10-06T14:58:14.739Z",
+        "deleted_at": null,
+        "created_at": "2026-10-06T07:08:29.083Z",
+        "updated_at": "2026-10-06T14:58:14.739Z",
+        "estimate_basis": "retrospective"
+      },
+      {
+        "id": "87eb0644-bc8b-4d7e-b88d-6378d8ef9ed6",
+        "plan_id": "92567208-e776-4542-b36a-073aa89b6fa1",
+        "title": "관리자 판단·SOAR 조치 화면 수정",
+        "deadline": "",
+        "priority": "medium",
+        "tag": "SOAR",
+        "estimate_minutes": 202,
+        "status": "completed",
+        "completion_cycle": 2,
+        "last_completion_request_key": "a2a9186a-63dc-4195-b9be-0f8ab7cd00e2",
+        "completed_at": "2026-10-06T15:09:06.214Z",
+        "deleted_at": null,
+        "created_at": "2026-10-06T07:08:29.085Z",
+        "updated_at": "2026-10-06T15:09:06.214Z",
+        "estimate_basis": "retrospective"
+      },
+      {
+        "id": "3f03bb0e-6cca-4e49-ad09-056f9a6b114e",
+        "plan_id": "92567208-e776-4542-b36a-073aa89b6fa1",
+        "title": "탐지·SOAR 응답 변환 및 연동 점검",
+        "deadline": "",
+        "priority": "medium",
+        "tag": "연동",
+        "estimate_minutes": 453,
+        "status": "completed",
+        "completion_cycle": 0,
+        "last_completion_request_key": "ffd831e6-3b93-42c7-af6e-879b5c54fcb1",
+        "completed_at": "2026-10-06T14:58:14.742Z",
+        "deleted_at": null,
+        "created_at": "2026-10-06T07:08:29.087Z",
+        "updated_at": "2026-10-06T14:58:14.742Z",
+        "estimate_basis": "retrospective"
+      }
+    ],
+    "work_logs": [
+      {
+        "id": "14b1a23c-26fd-44e3-8182-9cdbc6d8c79e",
+        "task_id": "db2f7979-d8af-44ac-8d0b-8f147b8311e5",
+        "started_at": "2026-09-28T08:06:00.000Z",
+        "ended_at": "2026-09-28T08:18:00.000Z",
+        "actual_seconds": 720,
+        "blocker_reason": "",
+        "created_at": "2026-10-06T14:47:56.953Z",
+        "work_summary": ".exe를 실행해 자동 통과 기록 표시를 확인하고 관련 화면과 README를 조정했다.",
+        "work_title": "자동 통과 기록 표시 확인"
+      },
+      {
+        "id": "6710ca38-3aa0-4870-9618-a2d00f613cfc",
+        "task_id": "9f9f2445-a357-46a2-91bd-d47dc79dcf0b",
+        "started_at": "2026-09-28T08:20:00.000Z",
+        "ended_at": "2026-09-28T08:40:00.000Z",
+        "actual_seconds": 1200,
+        "blocker_reason": "",
+        "created_at": "2026-10-06T14:47:56.955Z",
+        "work_summary": "샘플 기록 초기화 방법을 확인하고 거절됨 필터와 이벤트 큐 필터 순서를 정리했다.",
+        "work_title": "샘플 초기화와 이벤트 큐 필터 정리"
+      },
+      {
+        "id": "31fc3bd8-d26f-47f8-b2f6-7ec1f4b61d4b",
+        "task_id": "3f03bb0e-6cca-4e49-ad09-056f9a6b114e",
+        "started_at": "2026-09-30T00:28:00.000Z",
+        "ended_at": "2026-09-30T01:36:00.000Z",
+        "actual_seconds": 4080,
+        "blocker_reason": "",
+        "created_at": "2026-10-06T14:47:56.957Z",
+        "work_summary": "팀원의 탐지·SOAR 자료를 검토해 기존 UI에 맞는 화면 구조와 데이터 연결 형태를 보강했다.",
+        "work_title": "탐지·SOAR 화면 구조와 데이터 연결"
+      },
+      {
+        "id": "c7ea6a1f-fc81-4c79-ad39-c58a7a3a7ba5",
+        "task_id": "3f03bb0e-6cca-4e49-ad09-056f9a6b114e",
+        "started_at": "2026-09-30T01:37:00.000Z",
+        "ended_at": "2026-09-30T03:09:00.000Z",
+        "actual_seconds": 5520,
+        "blocker_reason": "",
+        "created_at": "2026-10-06T14:47:56.960Z",
+        "work_summary": "초기 통합 시험과 Incident API 연결 방식을 점검했다.",
+        "work_title": "초기 통합 시험과 Incident API 점검"
+      },
+      {
+        "id": "e2950a19-7765-4e11-b845-529f359cd52c",
+        "task_id": "543bc50e-3f4a-4a9f-9f14-8177136b2890",
+        "started_at": "2026-09-30T03:46:00.000Z",
+        "ended_at": "2026-09-30T05:09:00.000Z",
+        "actual_seconds": 4980,
+        "blocker_reason": "보고서 오류",
+        "created_at": "2026-10-06T14:22:49.365Z",
+        "work_summary": "대응 실패 샘플을 실행해 버튼과 보고서 동작을 확인하고 보고서 오류와 감사 이력 달력·보고서 보기를 수정했다.",
+        "work_title": "보고서 오류·감사 이력 화면 수정"
+      },
+      {
+        "id": "af494bfe-c61d-4816-a811-b708d27203dd",
+        "task_id": "87eb0644-bc8b-4d7e-b88d-6378d8ef9ed6",
+        "started_at": "2026-09-30T06:38:00.000Z",
+        "ended_at": "2026-09-30T07:09:00.000Z",
+        "actual_seconds": 1860,
+        "blocker_reason": "",
+        "created_at": "2026-10-06T14:47:56.963Z",
+        "work_summary": "샘플 기록을 초기화해 재시험하고 정상 로그인·자동 통과 및 자동 거부 아이디어를 검토했다.",
+        "work_title": "샘플 재시험과 자동 처리 방식 검토"
+      },
+      {
+        "id": "0cab222a-585d-43ec-8ab7-a5a6023d095b",
+        "task_id": "543bc50e-3f4a-4a9f-9f14-8177136b2890",
+        "started_at": "2026-10-02T02:17:00.000Z",
+        "ended_at": "2026-10-02T03:29:00.000Z",
+        "actual_seconds": 4320,
+        "blocker_reason": "",
+        "created_at": "2026-10-06T14:47:56.966Z",
+        "work_summary": "보고서·감사 이력, XSS·상위 경로 탐색 플레이북, LLM 설명의 누락 여부를 다시 점검했다.",
+        "work_title": "보고서·플레이북·LLM 설명 누락 점검"
+      },
+      {
+        "id": "61c567b3-63f3-4f40-851d-0a70e0f362c3",
+        "task_id": "db2f7979-d8af-44ac-8d0b-8f147b8311e5",
+        "started_at": "2026-10-02T03:43:00.000Z",
+        "ended_at": "2026-10-02T06:18:00.000Z",
+        "actual_seconds": 9300,
+        "blocker_reason": "",
+        "created_at": "2026-10-06T14:47:56.968Z",
+        "work_summary": "실사용 UI와 개인 시연 기능을 분리하고 샘플이 배포용 .exe에 남지 않도록 구조를 수정했다.",
+        "work_title": "실사용 UI와 시연 기능 분리"
+      },
+      {
+        "id": "3d9d6260-d284-42a6-aa31-72b3ece4abd5",
+        "task_id": "9f9f2445-a357-46a2-91bd-d47dc79dcf0b",
+        "started_at": "2026-10-02T06:36:00.000Z",
+        "ended_at": "2026-10-02T08:27:00.000Z",
+        "actual_seconds": 6660,
+        "blocker_reason": "정렬 버튼 클릭 문제",
+        "created_at": "2026-10-06T14:22:49.368Z",
+        "work_summary": "이벤트 큐 정렬 버튼의 클릭 문제와 열 간격을 수정하고 발생 시각·우선순위·상태 정렬 및 대상 IP 표시를 재확인했다.",
+        "work_title": "이벤트 큐 정렬·열 간격 수정"
+      },
+      {
+        "id": "df4ffe25-0172-4347-9068-4c4191a15c64",
+        "task_id": "bffcb655-4949-48c6-91d7-ca818209be86",
+        "started_at": "2026-10-02T12:01:00.000Z",
+        "ended_at": "2026-10-02T13:11:00.000Z",
+        "actual_seconds": 4200,
+        "blocker_reason": "",
+        "created_at": "2026-10-06T14:22:49.371Z",
+        "work_summary": "XSS·상위 경로 탐색 및 LLM 설명을 UI에서 자세히 보여주는 방식을 보강하고 qt_app.py의 화면 기능을 분리했다.",
+        "work_title": "탐지 설명 표시와 화면 기능 분리"
+      },
+      {
+        "id": "a005b885-da4e-4ca3-a819-eb1500e7c8c3",
+        "task_id": "3f03bb0e-6cca-4e49-ad09-056f9a6b114e",
+        "started_at": "2026-10-03T10:29:00.000Z",
+        "ended_at": "2026-10-03T12:50:00.000Z",
+        "actual_seconds": 8460,
+        "blocker_reason": "로컬 공격 입력기 실행 오류와 구조 문제",
+        "created_at": "2026-10-06T14:47:56.974Z",
+        "work_summary": "로컬 공격 입력기 초안을 시험하다 실행 오류와 구조 문제를 확인했다. 기존 UI는 수정하지 않는 방향으로 요구사항을 다시 정리했다.",
+        "work_title": "로컬 공격 입력기 오류·구조 점검"
+      },
+      {
+        "id": "a895a5d6-0cf3-4580-b4e0-4c4f78c49eee",
+        "task_id": "3f03bb0e-6cca-4e49-ad09-056f9a6b114e",
+        "started_at": "2026-10-03T13:17:00.000Z",
+        "ended_at": "2026-10-03T13:58:00.000Z",
+        "actual_seconds": 2460,
+        "blocker_reason": "",
+        "created_at": "2026-10-06T14:47:56.976Z",
+        "work_summary": "독립적인 통합본과 로컬 공격 랩의 연결 구조를 확정하고 통합 화면과 공격 입력기를 실행했다.",
+        "work_title": "통합본과 로컬 공격 랩 연결"
+      },
+      {
+        "id": "9f3ce472-1b2f-436b-8750-57b04da555b7",
+        "task_id": "3f03bb0e-6cca-4e49-ad09-056f9a6b114e",
+        "started_at": "2026-10-03T14:04:00.000Z",
+        "ended_at": "2026-10-03T14:36:00.000Z",
+        "actual_seconds": 1920,
+        "blocker_reason": "",
+        "created_at": "2026-10-06T14:47:56.978Z",
+        "work_summary": "기록을 초기화한 뒤 로그인 실패 12건·계정 2개를 전송했다. 저장 요청 수와 관제 사건 1건·근거 로그 5건이 다른 이유를 확인했다.",
+        "work_title": "로그인 실패 공격 입력·관제 결과 확인"
+      },
+      {
+        "id": "a6b3f257-b0d1-465a-a031-02d8d5d98439",
+        "task_id": "87eb0644-bc8b-4d7e-b88d-6378d8ef9ed6",
+        "started_at": "2026-10-03T14:39:00.000Z",
+        "ended_at": "2026-10-03T15:56:00.000Z",
+        "actual_seconds": 4620,
+        "blocker_reason": "자동 통과 표시가 나타나지 않음",
+        "created_at": "2026-10-06T14:47:56.980Z",
+        "work_summary": "정상 로그인 2~3건을 재시험하고 자동 통과가 나타나지 않는 것을 확인했다. PPT와 비교해 원래 계획의 필수 범위를 재검토했다.",
+        "work_title": "자동 통과 미표시 재시험"
+      },
+      {
+        "id": "241a97bb-3a43-4774-b7ff-d44543dfc5d3",
+        "task_id": "87eb0644-bc8b-4d7e-b88d-6378d8ef9ed6",
+        "started_at": "2026-10-03T16:04:00.000Z",
+        "ended_at": "2026-10-03T16:56:00.000Z",
+        "actual_seconds": 3120,
+        "blocker_reason": "",
+        "created_at": "2026-10-06T14:47:56.983Z",
+        "work_summary": "test를 demo로 옮긴 구조를 확인한 뒤 원본 UI의 자동 통과 표시를 정리하고 .exe 출력 위치를 프로젝트 최상위로 변경했다.",
+        "work_title": "자동 통과 표시 수정·실행 파일 위치 정리"
+      },
+      {
+        "id": "470fa882-0e55-44e0-8146-155fbd2eb81d",
+        "task_id": "3f03bb0e-6cca-4e49-ad09-056f9a6b114e",
+        "started_at": "2026-10-03T16:58:00.000Z",
+        "ended_at": "2026-10-03T17:11:00.000Z",
+        "actual_seconds": 780,
+        "blocker_reason": "",
+        "created_at": "2026-10-06T14:47:56.985Z",
+        "work_summary": "최신 UI를 데모에 복사한 상태를 확인하고 통합 .exe를 재빌드했다. 실행 확인 후 공격 요청을 다시 시험했다.",
+        "work_title": "통합 실행 파일 재빌드·공격 요청 재시험"
+      }
+    ],
+    "completion_events": [
+      {
+        "id": "67a050f091c5422526f2ccdeae1f1065",
+        "task_id": "db2f7979-d8af-44ac-8d0b-8f147b8311e5",
+        "completion_cycle": 0,
+        "request_key": "f83c81be-f0e1-4911-8139-b8ad260ae10c",
+        "completed_at": "2026-10-06T07:08:29.075Z"
+      },
+      {
+        "id": "ac8d364fd015e528d7150003aa03891a",
+        "task_id": "543bc50e-3f4a-4a9f-9f14-8177136b2890",
+        "completion_cycle": 0,
+        "request_key": "d278e72c-f7c8-4c34-8ff2-ba27562630b0",
+        "completed_at": "2026-10-06T07:08:29.079Z"
+      },
+      {
+        "id": "32316ddee9c41b262fbf75e548087749",
+        "task_id": "9f9f2445-a357-46a2-91bd-d47dc79dcf0b",
+        "completion_cycle": 0,
+        "request_key": "a4c6f766-0180-4a5a-b8dd-b4bef99ca3a6",
+        "completed_at": "2026-10-06T14:58:14.737Z"
+      },
+      {
+        "id": "9e94f33338074f5dcebd54507799f28a",
+        "task_id": "bffcb655-4949-48c6-91d7-ca818209be86",
+        "completion_cycle": 0,
+        "request_key": "0a72b4d1-c3df-45ec-a1c0-204426ab0fef",
+        "completed_at": "2026-10-06T14:58:14.739Z"
+      },
+      {
+        "id": "20fc02f7c9fb25a899dead93de399e3a",
+        "task_id": "3f03bb0e-6cca-4e49-ad09-056f9a6b114e",
+        "completion_cycle": 0,
+        "request_key": "ffd831e6-3b93-42c7-af6e-879b5c54fcb1",
+        "completed_at": "2026-10-06T14:58:14.742Z"
+      },
+      {
+        "id": "dc6d49f11c05cdd6a90249420c65e84b",
+        "task_id": "87eb0644-bc8b-4d7e-b88d-6378d8ef9ed6",
+        "completion_cycle": 0,
+        "request_key": "08fbc131-a561-445c-99f1-6d3b2f2a0ded",
+        "completed_at": "2026-10-06T15:02:03.093Z"
+      },
+      {
+        "id": "96aeaebf489b00c3933de646aff8b0b6",
+        "task_id": "87eb0644-bc8b-4d7e-b88d-6378d8ef9ed6",
+        "completion_cycle": 1,
+        "request_key": "24abf942-e301-4270-99a6-e4e8ae6c70d5",
+        "completed_at": "2026-10-06T15:02:06.885Z"
+      },
+      {
+        "id": "b72dd0e352c6c22e5ce06f1ef5005a35",
+        "task_id": "87eb0644-bc8b-4d7e-b88d-6378d8ef9ed6",
+        "completion_cycle": 2,
+        "request_key": "a2a9186a-63dc-4195-b9be-0f8ab7cd00e2",
+        "completed_at": "2026-10-06T15:09:06.214Z"
+      }
+    ],
+    "reviews": [
+      {
+        "id": "475e86e3-429c-4fde-b9e6-4291a5eeb9c2",
+        "source_plan_id": "92567208-e776-4542-b36a-073aa89b6fa1",
+        "next_plan_id": "7d5b5949-42b4-4bc3-8379-6ec4f4e23599",
+        "improvement_line": "통합본에서 문제를 발견하면 담당 부분을 수정·재통합한 뒤 같은 시나리오로 다시 검증한다.",
+        "created_at": "2026-10-06T14:31:07.886Z"
+      }
+    ]
+  }
+}

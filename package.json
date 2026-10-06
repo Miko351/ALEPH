@@ -1,0 +1,12 @@
+{
+  "name": "aleph-plan-do-see",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev-server.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.4"
+  }
+}
