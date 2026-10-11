@@ -1,7 +1,8 @@
 import { getDb } from '../src/db.js';
 import { ensureSchema } from '../src/schema.js';
-import { ensureInitialData } from '../src/initial-data.js';
-import { actions, InputError, loadSnapshot } from '../src/model.js';
+import { requireSession, validateSameOrigin } from '../src/auth.js';
+import { actions, InputError, loadSnapshot, readTask } from '../src/model.js';
+import { diaryActions, readDiary } from '../src/diary.js';
 
 const jsonHeaders = {
   'content-type': 'application/json; charset=utf-8',
@@ -21,9 +22,12 @@ export async function GET(request) {
   try {
     const db = getDb();
     await ensureSchema(db);
-    await ensureInitialData(db);
-    const snapshot = await loadSnapshot(db);
-    const isExport = new URL(request.url).searchParams.get('export') === '1';
+    const { user } = await requireSession(db, request);
+    const url = new URL(request.url);
+    const taskId = url.searchParams.get('task_id');
+    if (taskId) return Response.json({ task: await readTask(db, user.id, taskId) }, { headers: jsonHeaders });
+    const snapshot = { ...await loadSnapshot(db, user.id), diary: await readDiary(db, user.id) };
+    const isExport = url.searchParams.get('export') === '1';
     if (isExport) {
       return new Response(JSON.stringify({ exported_at: new Date().toISOString(), ...snapshot }, null, 2), {
         headers: {
@@ -40,6 +44,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    validateSameOrigin(request);
     const raw = await request.text();
     if (raw.length > 64000) throw new InputError('입력 내용이 너무 깁니다.', 413);
     let body;
@@ -48,14 +53,14 @@ export async function POST(request) {
     } catch {
       throw new InputError('요청 형식이 올바르지 않습니다.');
     }
-    if (!body || typeof body !== 'object' || !Object.hasOwn(actions, body.action)) {
+    if (!body || typeof body !== 'object' || !Object.hasOwn({ ...actions, ...diaryActions }, body.action)) {
       throw new InputError('지원하지 않는 작업입니다.');
     }
     const db = getDb();
     await ensureSchema(db);
-    await ensureInitialData(db);
-    const result = await actions[body.action](db, body.data ?? {});
-    return Response.json({ result, snapshot: await loadSnapshot(db) }, { headers: jsonHeaders });
+    const { user } = await requireSession(db, request);
+    const result = await (actions[body.action] ?? diaryActions[body.action])(db, body.data ?? {}, user.id);
+    return Response.json({ result, snapshot: { ...await loadSnapshot(db, user.id), diary: await readDiary(db, user.id) } }, { headers: jsonHeaders });
   } catch (error) {
     return errorResponse(error);
   }

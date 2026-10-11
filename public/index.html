@@ -10,19 +10,41 @@
 </head>
 <body>
   <a class="skip-link" href="#content">본문으로 건너뛰기</a>
-  <div class="app-shell">
+  <main id="auth-screen" class="auth-screen">
+    <section class="auth-card" aria-labelledby="auth-heading">
+      <div class="brand" aria-label="PlanDoSee">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span>PlanDoSee</span>
+      </div>
+      <span class="eyebrow">PRIVATE WORK DIARY</span>
+      <h1 id="auth-heading">내 계획과 기록은<br>로그인 뒤에만.</h1>
+      <p>가입하거나 로그인해 나만의 Plan·Do·See를 이어가세요.</p>
+      <div class="auth-modes" aria-label="인증 방식 선택">
+        <button type="button" class="is-active" data-auth-mode="login" aria-pressed="true">로그인</button>
+        <button type="button" data-auth-mode="register" aria-pressed="false">가입</button>
+      </div>
+      <form id="auth-form">
+        <label>아이디<input name="username" autocomplete="username" pattern="[A-Za-z0-9_-]{3,40}" minlength="3" maxlength="40" required></label>
+        <label>비밀번호<input name="password" type="password" autocomplete="current-password" minlength="12" required></label>
+        <button id="auth-submit" class="primary-button" type="submit">로그인</button>
+      </form>
+      <p id="auth-message" class="auth-message" role="status" aria-live="polite" hidden></p>
+      <p class="auth-foot">아이디는 영문·숫자·_·-로 3~40자, 비밀번호는 12자 이상입니다.</p>
+    </section>
+  </main>
+  <div class="app-shell" id="app-shell" hidden>
     <header class="topbar">
       <div class="brand" aria-label="PlanDoSee">
         <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
         <span>PlanDoSee</span>
       </div>
-      <a class="export-link" href="/api/data?export=1" download>전체 기록 내보내기 <span aria-hidden="true">↗</span></a>
+      <div class="account-actions">
+        <span id="signed-in-as"></span>
+        <a class="export-link" href="/api/data?export=1" download>내 기록 내보내기 <span aria-hidden="true">↗</span></a>
+        <button id="account-settings" class="small-button" type="button">계정 설정</button>
+        <button id="logout-button" class="small-button" type="button">로그아웃</button>
+      </div>
     </header>
-
-    <aside class="public-notice" aria-label="공개 안내">
-      <span class="notice-symbol" aria-hidden="true">!</span>
-      <div><p>지금은 로그인이 없어 링크를 아는 사람은 누구나 볼 수 있습니다. 남이 봐도 괜찮은 내용만 넣으세요</p><p class="notice-detail">로그인이 없으므로 공개된 화면에서는 다른 사람도 기록을 수정하거나 삭제할 수 있습니다.</p></div>
-    </aside>
 
     <div class="workspace">
       <aside class="rail">
@@ -40,6 +62,9 @@
           </button>
           <button class="step" type="button" data-tab="see">
             <span class="step-dot" aria-hidden="true"></span><span><strong>See</strong><small>돌아보고 잇기</small></span>
+          </button>
+          <button class="step" type="button" data-tab="diary">
+            <span class="step-dot" aria-hidden="true"></span><span><strong>5일 기록</strong><small>규칙 전후 비교</small></span>
           </button>
         </nav>
         <div class="rail-foot">기준 날짜 · <span id="today-label">Asia/Seoul</span></div>
@@ -150,8 +175,73 @@
             <div id="review-list" class="review-list"></div>
           </section>
         </section>
+
+        <section id="diary-panel" class="panel" aria-labelledby="diary-heading" hidden>
+          <div class="page-heading">
+            <div><span class="eyebrow">FIVE-DAY DIARY</span><h2 id="diary-heading">같은 질문으로 5일을 봅니다.</h2></div>
+            <p>실제 Asia/Seoul 날짜마다 한 번 기록합니다. 2일차 뒤에는 계획 규칙 한 가지만 바꿉니다.</p>
+          </div>
+          <div class="two-column">
+            <section class="surface form-surface" id="diary-setup-section" aria-labelledby="diary-setup-heading">
+              <div class="surface-head"><h3 id="diary-setup-heading">첫날 기준 고정하기</h3></div>
+              <form id="diary-setup-form">
+                <label>답하려는 질문<input name="question" maxlength="300" required placeholder="예: 하루 작업 시간이 계획과 얼마나 달랐나?"></label>
+                <div class="field-row"><label>관찰 지표<input name="metric_name" maxlength="100" required></label><label>단위<input name="unit" maxlength="40" required placeholder="예: 분"></label></div>
+                <label>처음 계획 규칙<textarea name="plan_rule" maxlength="500" rows="3" required></textarea></label>
+                <p class="field-note">계산: 날짜별 입력값 합계와, 값이 있는 날의 산술평균. 빈 값은 계산에서 제외합니다. 같은 KST 날짜의 중복은 거절합니다. 튀는 값은 포함하고 메모로 설명합니다. 소수 둘째 자리까지 표시하며 주는 월요일에 시작합니다. 이 기준은 저장 뒤 바뀌지 않습니다.</p>
+                <button class="primary-button" type="submit">기준 저장</button>
+              </form>
+            </section>
+            <section class="surface" aria-labelledby="diary-summary-heading">
+              <div class="surface-head"><h3 id="diary-summary-heading">5일 기록</h3><span id="diary-count" class="surface-hint">0/5일</span></div>
+              <div id="diary-summary" class="empty-state">첫날 기준을 정하면 기록을 시작할 수 있습니다.</div>
+              <div id="diary-days" class="diary-days"></div>
+            </section>
+          </div>
+          <div class="two-column lower-grid">
+            <section class="surface form-surface" id="diary-day-section" aria-labelledby="diary-day-heading" hidden>
+              <div class="surface-head"><h3 id="diary-day-heading">오늘 기록하기</h3></div>
+              <form id="diary-day-form">
+                <p id="diary-today" class="field-note"></p>
+                <label id="diary-value-label">오늘의 값<input name="value" type="number" min="0" step="0.01" placeholder="값이 없으면 비워 두세요"></label>
+                <label>메모<textarea name="note" maxlength="1000" rows="3" placeholder="튀는 값이나 빈 값의 이유를 적어 주세요."></textarea></label>
+                <button class="primary-button" type="submit">오늘 기록 저장</button>
+              </form>
+            </section>
+            <section class="surface form-surface" id="diary-rule-section" aria-labelledby="diary-rule-heading" hidden>
+              <div class="surface-head"><h3 id="diary-rule-heading">계획 규칙 한 가지 바꾸기</h3></div>
+              <form id="diary-rule-form">
+                <p class="field-note">2일차 기록을 남긴 뒤, 3일차 기록 전까지 한 번만 변경할 수 있습니다. 지표·단위·계산 규칙은 유지됩니다.</p>
+                <label>바꾼 계획 규칙<textarea name="next_rule" maxlength="500" rows="3" required></textarea></label>
+                <label>바꾼 이유<textarea name="reason" maxlength="500" rows="3" required></textarea></label>
+                <button class="primary-button" type="submit">규칙 변경 기록</button>
+              </form>
+            </section>
+          </div>
+          <section class="surface diary-comparison" id="diary-comparison" hidden aria-labelledby="diary-comparison-heading">
+            <div class="surface-head"><h3 id="diary-comparison-heading">규칙 변경 전후</h3></div>
+            <div id="diary-change-details"></div>
+            <div id="diary-before-after"></div>
+          </section>
+        </section>
       </main>
     </div>
   </div>
+  <dialog id="account-dialog" class="account-dialog" aria-labelledby="account-heading">
+    <div class="surface-head"><h2 id="account-heading">계정 설정</h2><button id="account-close" class="small-button" type="button">닫기</button></div>
+    <form id="password-form">
+      <h3>비밀번호 변경</h3>
+      <label>현재 비밀번호<input name="current_password" type="password" autocomplete="current-password" required></label>
+      <label>새 비밀번호<input name="new_password" type="password" autocomplete="new-password" minlength="12" required></label>
+      <button type="submit" class="small-button">비밀번호 변경 후 로그아웃</button>
+    </form>
+    <form id="delete-account-form">
+      <h3>계정 삭제</h3>
+      <p>계정을 삭제하면 이 계정의 계획·할 일·실행 기록·돌아보기도 함께 삭제됩니다.</p>
+      <label>확인 비밀번호<input name="password" type="password" autocomplete="current-password" required></label>
+      <button type="submit" class="mini-button danger">계정과 내 기록 삭제</button>
+    </form>
+    <p id="account-message" role="status" aria-live="polite" hidden></p>
+  </dialog>
 </body>
 </html>

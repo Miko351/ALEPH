@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
 import { GET, POST } from '../api/data.js';
+import { GET as authGET, POST as authPOST } from '../api/auth.js';
 
 const publicRoot = resolve('public');
 const contentTypes = {
@@ -14,7 +15,7 @@ const contentTypes = {
 const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? '/', `http://${request.headers.host ?? 'localhost'}`);
 
-  if (url.pathname === '/api/data') {
+  if (url.pathname === '/api/data' || url.pathname === '/api/auth') {
     if (!['GET', 'POST'].includes(request.method)) {
       response.writeHead(405, { allow: 'GET, POST' });
       response.end();
@@ -27,7 +28,10 @@ const server = createServer(async (request, response) => {
       headers: request.headers,
       ...(request.method === 'POST' ? { body: Buffer.concat(chunks) } : {}),
     });
-    const webResponse = request.method === 'GET' ? await GET(webRequest) : await POST(webRequest);
+    const authRoute = url.pathname === '/api/auth';
+    const webResponse = request.method === 'GET'
+      ? await (authRoute ? authGET : GET)(webRequest)
+      : await (authRoute ? authPOST : POST)(webRequest);
     response.writeHead(webResponse.status, Object.fromEntries(webResponse.headers));
     response.end(Buffer.from(await webResponse.arrayBuffer()));
     return;

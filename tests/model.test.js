@@ -4,10 +4,14 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createClient } from '@libsql/client';
+import { randomUUID } from 'node:crypto';
 import { ensureSchema } from '../src/schema.js';
 import {
-  calculateSee, carryReview, completeTask, createPlan, createTask, createWorkLog,
-  deleteTask, loadSnapshot, reopenTask, todaySeoul, updatePlan, updateTask,
+  calculateSee, carryReview as carryReviewOwned, completeTask as completeTaskOwned,
+  createPlan as createPlanOwned, createTask as createTaskOwned, createWorkLog as createWorkLogOwned,
+  deleteTask as deleteTaskOwned, loadSnapshot as loadSnapshotOwned,
+  reopenTask as reopenTaskOwned, todaySeoul, updatePlan as updatePlanOwned,
+  updateTask as updateTaskOwned,
 } from '../src/model.js';
 
 test('계획·할 일·실행·돌아보기는 서버 DB 파일에 보존되고 근거 수치와 일치한다', async () => {
@@ -16,6 +20,19 @@ test('계획·할 일·실행·돌아보기는 서버 DB 파일에 보존되고 
   const db = createClient({ url });
   try {
     await ensureSchema(db);
+    const ownerId = randomUUID();
+    await db.execute({ sql: 'INSERT INTO users (id, username, password_hash, created_at) VALUES (?, ?, ?, ?)',
+      args: [ownerId, 'modeltest', 'synthetic-test-hash', new Date().toISOString()] });
+    const createPlan = (target, data) => createPlanOwned(target, data, ownerId);
+    const updatePlan = (target, data) => updatePlanOwned(target, data, ownerId);
+    const createTask = (target, data) => createTaskOwned(target, data, ownerId);
+    const updateTask = (target, data) => updateTaskOwned(target, data, ownerId);
+    const deleteTask = (target, data) => deleteTaskOwned(target, data, ownerId);
+    const completeTask = (target, data) => completeTaskOwned(target, data, ownerId);
+    const reopenTask = (target, data) => reopenTaskOwned(target, data, ownerId);
+    const createWorkLog = (target, data) => createWorkLogOwned(target, data, ownerId);
+    const carryReview = (target, data) => carryReviewOwned(target, data, ownerId);
+    const loadSnapshot = (target) => loadSnapshotOwned(target, ownerId);
     const plan = {
       title: '검사 전용 계획', start_date: '2026-10-01', end_date: '2026-10-31',
       priority: 'high', success_criteria: '할 일 다섯 개 검증', estimate_minutes: 300,

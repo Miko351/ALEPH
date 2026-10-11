@@ -102,13 +102,13 @@ async function withWrite(db, work) {
   }
 }
 
-async function insertPlan(tx, data, timestampNow) {
+async function insertPlan(tx, data, timestampNow, ownerId) {
   const planId = randomUUID();
   await tx.execute({
     sql: `INSERT INTO plans
-      (id, title, start_date, end_date, priority, success_criteria, estimate_minutes, carried_note, revision, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
-    args: [planId, data.title, data.start_date, data.end_date, data.priority,
+      (id, owner_id, title, start_date, end_date, priority, success_criteria, estimate_minutes, carried_note, revision, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+    args: [planId, ownerId, data.title, data.start_date, data.end_date, data.priority,
       data.success_criteria, data.estimate_minutes, data.carried_note, timestampNow, timestampNow],
   });
   await tx.execute({
@@ -121,25 +121,27 @@ async function insertPlan(tx, data, timestampNow) {
   return planId;
 }
 
-export async function createPlan(db, input) {
+export async function createPlan(db, input, ownerId) {
+  const owner = id(ownerId, '계정');
   const data = planInput(input);
-  return withWrite(db, (tx) => insertPlan(tx, data, now()));
+  return withWrite(db, (tx) => insertPlan(tx, data, now(), owner));
 }
 
-export async function updatePlan(db, input) {
+export async function updatePlan(db, input, ownerId) {
+  const owner = id(ownerId, '계정');
   const planId = id(input.id, '계획');
   const data = planInput(input);
   return withWrite(db, async (tx) => {
-    const current = one(await tx.execute({ sql: 'SELECT revision FROM plans WHERE id = ?', args: [planId] }));
+    const current = one(await tx.execute({ sql: 'SELECT revision FROM plans WHERE id = ? AND owner_id = ?', args: [planId, owner] }));
     if (!current) throw new InputError('계획을 찾을 수 없습니다.', 404);
     const nextRevision = Number(current.revision) + 1;
     const savedAt = now();
     await tx.execute({
       sql: `UPDATE plans SET title = ?, start_date = ?, end_date = ?, priority = ?,
         success_criteria = ?, estimate_minutes = ?, carried_note = ?, revision = ?, updated_at = ?
-        WHERE id = ?`,
-      args: [data.title, data.start_date, data.end_date, data.priority,
-        data.success_criteria, data.estimate_minutes, data.carried_note, nextRevision, savedAt, planId],
+        WHERE id = ? AND owner_id = ?`,
+    args: [data.title, data.start_date, data.end_date, data.priority,
+      data.success_criteria, data.estimate_minutes, data.carried_note, nextRevision, savedAt, planId, owner],
     });
     await tx.execute({
       sql: `INSERT INTO plan_versions
@@ -152,10 +154,11 @@ export async function updatePlan(db, input) {
   });
 }
 
-export async function createTask(db, input) {
+export async function createTask(db, input, ownerId) {
+  const owner = id(ownerId, '계정');
   const planId = id(input.plan_id, '계획');
   const data = taskInput(input);
-  const plan = one(await db.execute({ sql: 'SELECT id FROM plans WHERE id = ?', args: [planId] }));
+  const plan = one(await db.execute({ sql: 'SELECT id FROM plans WHERE id = ? AND owner_id = ?', args: [planId, owner] }));
   if (!plan) throw new InputError('계획을 찾을 수 없습니다.', 404);
   const taskId = randomUUID();
   const createdAt = now();
@@ -169,29 +172,32 @@ export async function createTask(db, input) {
   return taskId;
 }
 
-export async function updateTask(db, input) {
+export async function updateTask(db, input, ownerId) {
+  const owner = id(ownerId, '계정');
   const taskId = id(input.id, '할 일');
   const data = taskInput(input);
   const result = await db.execute({
     sql: `UPDATE tasks SET title = ?, deadline = ?, priority = ?, tag = ?, estimate_minutes = ?, estimate_basis = ?, updated_at = ?
-      WHERE id = ? AND deleted_at IS NULL RETURNING id`,
-    args: [data.title, data.deadline, data.priority, data.tag, data.estimate_minutes, data.estimate_basis, now(), taskId],
+      WHERE id = ? AND deleted_at IS NULL AND plan_id IN (SELECT id FROM plans WHERE owner_id = ?) RETURNING id`,
+    args: [data.title, data.deadline, data.priority, data.tag, data.estimate_minutes, data.estimate_basis, now(), taskId, owner],
   });
   if (!one(result)) throw new InputError('할 일을 찾을 수 없습니다.', 404);
   return taskId;
 }
 
-export async function deleteTask(db, input) {
+export async function deleteTask(db, input, ownerId) {
+  const owner = id(ownerId, '계정');
   const taskId = id(input.id, '할 일');
   const result = await db.execute({
-    sql: 'UPDATE tasks SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL RETURNING id',
-    args: [now(), now(), taskId],
+    sql: 'UPDATE tasks SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL AND plan_id IN (SELECT id FROM plans WHERE owner_id = ?) RETURNING id',
+    args: [now(), now(), taskId, owner],
   });
   if (!one(result)) throw new InputError('할 일을 찾을 수 없습니다.', 404);
   return taskId;
 }
 
-export async function completeTask(db, input) {
+export async function completeTask(db, input, ownerId) {
+  const owner = id(ownerId, '계정');
   const taskId = id(input.id, '할 일');
   const requestKey = input.request_key ? id(input.request_key, '요청') : randomUUID();
   const completedAt = now();
@@ -200,34 +206,38 @@ export async function completeTask(db, input) {
   const changed = one(await db.execute({
     sql: `UPDATE tasks SET status = 'completed', completed_at = ?, updated_at = ?,
       last_completion_request_key = ?
-      WHERE id = ? AND status = 'open' AND deleted_at IS NULL RETURNING id`,
-    args: [completedAt, completedAt, requestKey, taskId],
+      WHERE id = ? AND status = 'open' AND deleted_at IS NULL
+        AND plan_id IN (SELECT id FROM plans WHERE owner_id = ?) RETURNING id`,
+    args: [completedAt, completedAt, requestKey, taskId, owner],
   }));
   if (!changed) {
     const current = one(await db.execute({
-      sql: 'SELECT id FROM tasks WHERE id = ? AND deleted_at IS NULL', args: [taskId],
+      sql: 'SELECT id FROM tasks WHERE id = ? AND deleted_at IS NULL AND plan_id IN (SELECT id FROM plans WHERE owner_id = ?)', args: [taskId, owner],
     }));
     if (!current) throw new InputError('할 일을 찾을 수 없습니다.', 404);
   }
   return { id: taskId, added: Boolean(changed) };
 }
 
-export async function reopenTask(db, input) {
+export async function reopenTask(db, input, ownerId) {
+  const owner = id(ownerId, '계정');
   const taskId = id(input.id, '할 일');
   const result = await db.execute({
     sql: `UPDATE tasks SET status = 'open', completed_at = NULL,
       completion_cycle = completion_cycle + 1, last_completion_request_key = NULL, updated_at = ?
-      WHERE id = ? AND status = 'completed' AND deleted_at IS NULL RETURNING id`,
-    args: [now(), taskId],
+      WHERE id = ? AND status = 'completed' AND deleted_at IS NULL
+        AND plan_id IN (SELECT id FROM plans WHERE owner_id = ?) RETURNING id`,
+    args: [now(), taskId, owner],
   });
   if (!one(result)) throw new InputError('완료 상태인 할 일을 찾을 수 없습니다.', 404);
   return taskId;
 }
 
-export async function createWorkLog(db, input) {
+export async function createWorkLog(db, input, ownerId) {
+  const owner = id(ownerId, '계정');
   const taskId = id(input.task_id, '할 일');
   const task = one(await db.execute({
-    sql: 'SELECT id FROM tasks WHERE id = ? AND deleted_at IS NULL', args: [taskId],
+    sql: 'SELECT id FROM tasks WHERE id = ? AND deleted_at IS NULL AND plan_id IN (SELECT id FROM plans WHERE owner_id = ?)', args: [taskId, owner],
   }));
   if (!task) throw new InputError('할 일을 찾을 수 없습니다.', 404);
   const startedAt = timestamp(input.started_at, '시작');
@@ -249,15 +259,16 @@ export async function createWorkLog(db, input) {
   return logId;
 }
 
-export async function carryReview(db, input) {
+export async function carryReview(db, input, ownerId) {
+  const owner = id(ownerId, '계정');
   const sourceId = id(input.source_plan_id, '이전 계획');
   const line = text(input.improvement_line, '다음에 고칠 점', 500);
   const nextPlan = planInput({ ...input.next_plan, carried_note: line });
   return withWrite(db, async (tx) => {
-    const source = one(await tx.execute({ sql: 'SELECT id FROM plans WHERE id = ?', args: [sourceId] }));
+    const source = one(await tx.execute({ sql: 'SELECT id FROM plans WHERE id = ? AND owner_id = ?', args: [sourceId, owner] }));
     if (!source) throw new InputError('이전 계획을 찾을 수 없습니다.', 404);
     const createdAt = now();
-    const nextId = await insertPlan(tx, nextPlan, createdAt);
+    const nextId = await insertPlan(tx, nextPlan, createdAt, owner);
     await tx.execute({
       sql: `INSERT INTO reviews (id, source_plan_id, next_plan_id, improvement_line, created_at)
         VALUES (?, ?, ?, ?, ?)`,
@@ -296,14 +307,27 @@ export function calculateSee(planId, tasks, workLogs, at = new Date()) {
   };
 }
 
-export async function loadSnapshot(db) {
+export async function readTask(db, ownerId, taskId) {
+  const owner = id(ownerId, '계정');
+  const target = id(taskId, '할 일');
+  const task = one(await db.execute({
+    sql: `SELECT tasks.* FROM tasks JOIN plans ON plans.id = tasks.plan_id
+      WHERE tasks.id = ? AND tasks.deleted_at IS NULL AND plans.owner_id = ?`,
+    args: [target, owner],
+  }));
+  if (!task) throw new InputError('할 일을 찾을 수 없습니다.', 404);
+  return { ...task };
+}
+
+export async function loadSnapshot(db, ownerId) {
+  const owner = id(ownerId, '계정');
   const [plans, versions, tasks, logs, events, reviews] = await Promise.all([
-    db.execute('SELECT * FROM plans ORDER BY created_at DESC, id'),
-    db.execute('SELECT * FROM plan_versions ORDER BY plan_id, revision'),
-    db.execute('SELECT * FROM tasks ORDER BY created_at, id'),
-    db.execute('SELECT * FROM work_logs ORDER BY started_at, id'),
-    db.execute('SELECT * FROM completion_events ORDER BY completed_at, id'),
-    db.execute('SELECT * FROM reviews ORDER BY created_at, id'),
+    db.execute({ sql: 'SELECT * FROM plans WHERE owner_id = ? ORDER BY created_at DESC, id', args: [owner] }),
+    db.execute({ sql: 'SELECT plan_versions.* FROM plan_versions JOIN plans ON plans.id = plan_versions.plan_id WHERE plans.owner_id = ? ORDER BY plan_versions.plan_id, plan_versions.revision', args: [owner] }),
+    db.execute({ sql: 'SELECT tasks.* FROM tasks JOIN plans ON plans.id = tasks.plan_id WHERE plans.owner_id = ? ORDER BY tasks.created_at, tasks.id', args: [owner] }),
+    db.execute({ sql: 'SELECT work_logs.* FROM work_logs JOIN tasks ON tasks.id = work_logs.task_id JOIN plans ON plans.id = tasks.plan_id WHERE plans.owner_id = ? ORDER BY work_logs.started_at, work_logs.id', args: [owner] }),
+    db.execute({ sql: 'SELECT completion_events.* FROM completion_events JOIN tasks ON tasks.id = completion_events.task_id JOIN plans ON plans.id = tasks.plan_id WHERE plans.owner_id = ? ORDER BY completion_events.completed_at, completion_events.id', args: [owner] }),
+    db.execute({ sql: 'SELECT reviews.* FROM reviews JOIN plans ON plans.id = reviews.source_plan_id WHERE plans.owner_id = ? ORDER BY reviews.created_at, reviews.id', args: [owner] }),
   ]);
   const data = {
     plans: rows(plans), plan_versions: rows(versions), tasks: rows(tasks),

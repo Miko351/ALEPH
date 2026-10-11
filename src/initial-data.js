@@ -1,4 +1,5 @@
 import seed from '../seed/initial-records.json' with { type: 'json' };
+import { InputError } from './model.js';
 
 const columns = {
   plans: ['id', 'title', 'start_date', 'end_date', 'priority', 'success_criteria', 'estimate_minutes', 'carried_note', 'revision', 'created_at', 'updated_at'],
@@ -8,8 +9,6 @@ const columns = {
   completion_events: ['id', 'task_id', 'completion_cycle', 'request_key', 'completed_at'],
   reviews: ['id', 'source_plan_id', 'next_plan_id', 'improvement_line', 'created_at'],
 };
-
-const initializing = new WeakMap();
 
 function verifySeed() {
   if (seed.version !== 1 || !seed.tables ||
@@ -26,46 +25,44 @@ function verifySeed() {
   }
 }
 
-async function initialize(db) {
+export async function insertInitialDataForOwner(tx, ownerId) {
   verifySeed();
+  for (const [table, fields] of Object.entries(columns)) {
+    const names = table === 'plans' ? [...fields, 'owner_id'] : fields;
+    const sql = `INSERT INTO ${table} (${names.join(', ')}) VALUES (${names.map(() => '?').join(', ')})`;
+    for (const row of seed.tables[table]) {
+      const args = fields.map((field) => row[field]);
+      if (table === 'plans') args.push(ownerId);
+      await tx.execute({ sql, args });
+    }
+  }
+  return seed.tables.plans.length;
+}
+
+export async function importInitialDataToOwner(db, ownerId) {
   const tx = await db.transaction('write');
   try {
+    const account = await tx.execute({ sql: 'SELECT id FROM users WHERE id = ?', args: [ownerId] });
+    if (!account.rows.length) throw new InputError('대상 계정을 찾을 수 없습니다.', 404);
     const marker = await tx.execute({
       sql: 'INSERT OR IGNORE INTO bootstrap_runs (name, applied_at) VALUES (?, ?)',
-      args: ['initial-records-v1', new Date().toISOString()],
+      args: ['t07-legacy-claim-v1', new Date().toISOString()],
     });
-    if (Number(marker.rowsAffected) === 0) {
-      await tx.commit();
-      return false;
-    }
-
-    const existing = await tx.execute('SELECT COUNT(*) AS total FROM plans');
-    if (Number(existing.rows[0].total) > 0) {
-      await tx.commit();
-      return false;
-    }
-
-    for (const [table, fields] of Object.entries(columns)) {
-      const placeholders = fields.map(() => '?').join(', ');
-      const sql = `INSERT INTO ${table} (${fields.join(', ')}) VALUES (${placeholders})`;
-      for (const row of seed.tables[table]) {
-        await tx.execute({ sql, args: fields.map((field) => row[field]) });
-      }
+    if (!Number(marker.rowsAffected)) throw new InputError('기존 기록은 이미 이전되었습니다.', 409);
+    const existing = await tx.execute('SELECT COUNT(*) AS total FROM plans WHERE owner_id IS NULL');
+    let movedPlans;
+    if (Number(existing.rows[0].total)) {
+      const result = await tx.execute({
+        sql: 'UPDATE plans SET owner_id = ? WHERE owner_id IS NULL', args: [ownerId],
+      });
+      movedPlans = Number(result.rowsAffected);
+    } else {
+      movedPlans = await insertInitialDataForOwner(tx, ownerId);
     }
     await tx.commit();
-    return true;
+    return { movedPlans };
   } catch (error) {
     await tx.rollback().catch(() => {});
     throw error;
   }
-}
-
-export function ensureInitialData(db) {
-  if (!initializing.has(db)) {
-    initializing.set(db, initialize(db).catch((error) => {
-      initializing.delete(db);
-      throw error;
-    }));
-  }
-  return initializing.get(db);
 }

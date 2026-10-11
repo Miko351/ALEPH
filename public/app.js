@@ -1,5 +1,6 @@
 const $ = (selector) => document.querySelector(selector);
 const state = {
+  user: null,
   snapshot: null,
   selectedPlanId: null,
   tab: 'plan',
@@ -65,11 +66,65 @@ function notice(message, isError = false) {
   box.hidden = false;
 }
 
+function authNotice(message, isError = false, target = '#auth-message') {
+  const box = $(target);
+  box.textContent = message;
+  box.classList.toggle('error', isError);
+  box.hidden = !message;
+}
+
+function showAuth() {
+  state.user = null;
+  state.snapshot = null;
+  state.selectedPlanId = null;
+  $('#app-shell').hidden = true;
+  $('#auth-screen').hidden = false;
+  $('#signed-in-as').textContent = '';
+  $('.skip-link').href = '#auth-heading';
+  if ($('#account-dialog').open) $('#account-dialog').close();
+}
+
+async function authRequest(action, data = {}) {
+  const response = await fetch('/api/auth', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-pds-request': '1' },
+    body: JSON.stringify({ action, data }),
+  });
+  const body = await response.json();
+  if (!response.ok) throw new Error(body.error ?? '인증 요청을 처리하지 못했습니다.');
+  return body;
+}
+
+async function showApp(user) {
+  state.user = user;
+  $('#signed-in-as').textContent = `${user.username} 님`;
+  $('.skip-link').href = '#content';
+  $('#auth-screen').hidden = true;
+  $('#app-shell').hidden = false;
+  await load();
+}
+
+async function restoreSession() {
+  try {
+    const response = await fetch('/api/auth', { cache: 'no-store' });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error ?? '서버 연결을 확인해 주세요.');
+    if (body.authenticated) await showApp(body.user);
+    else showAuth();
+  } catch (error) {
+    showAuth();
+    authNotice(error.message, true);
+  }
+}
+
 async function load() {
   try {
     const response = await fetch('/api/data', { cache: 'no-store' });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error ?? '기록을 불러오지 못했습니다.');
+    if (!response.ok) {
+      if (response.status === 401) return showAuth();
+      throw new Error(data.error ?? '기록을 불러오지 못했습니다.');
+    }
     state.snapshot = data;
     if (!data.plans.some((plan) => plan.id === state.selectedPlanId)) {
       state.selectedPlanId = planWithLatestWork(data);
@@ -83,11 +138,14 @@ async function load() {
 async function mutate(action, data) {
   try {
     const response = await fetch('/api/data', {
-      method: 'POST', headers: { 'content-type': 'application/json' },
+      method: 'POST', headers: { 'content-type': 'application/json', 'x-pds-request': '1' },
       body: JSON.stringify({ action, data }),
     });
     const body = await response.json();
-    if (!response.ok) throw new Error(body.error ?? '저장하지 못했습니다.');
+    if (!response.ok) {
+      if (response.status === 401) showAuth();
+      throw new Error(body.error ?? '저장하지 못했습니다.');
+    }
     state.snapshot = body.snapshot;
     render();
     return body.result;
@@ -377,6 +435,58 @@ function renderSee() {
   }));
 }
 
+function renderDiary() {
+  const diary = state.snapshot.diary;
+  if (!diary) return;
+  const { config, days, rule_change: change } = diary;
+  $('#diary-setup-section').hidden = Boolean(config);
+  $('#diary-day-section').hidden = !config || days.length >= 5 ||
+    days.some((day) => day.day_kst === state.snapshot.today) || (days.length === 2 && !change);
+  $('#diary-rule-section').hidden = !config || days.length !== 2 || Boolean(change);
+  $('#diary-comparison').hidden = !change;
+  $('#diary-count').textContent = `${days.length}/5일`;
+  if (!config) return;
+  $('#diary-today').textContent = `오늘 ${state.snapshot.today} · Asia/Seoul`;
+  $('#diary-value-label').firstChild.textContent = `${config.metric_name} (${config.unit})`;
+  const summary = $('#diary-summary');
+  const rules = element('dl', 'diary-rules');
+  for (const [label, value] of [
+    ['질문', config.question], ['지표', `${config.metric_name} · ${config.unit}`],
+    ['계산', config.calculation_rule], ['빈 값', config.missing_rule],
+    ['중복', config.duplicate_rule], ['튀는 값', config.outlier_rule],
+    ['반올림', config.rounding_rule], ['주 시작', config.week_start],
+    ['처음 계획 규칙', config.plan_rule],
+  ]) add(rules, meta(label, value));
+  const values = element('p', 'diary-total', `합계 ${diary.total.toFixed(2)} ${config.unit} · 평균 ${diary.average === null ? '—' : diary.average.toFixed(2)} ${config.unit} · 계산에 포함된 날 ${diary.counted_days}일`);
+  summary.replaceChildren(rules, values);
+  $('#diary-days').replaceChildren(...days.map((day, index) => {
+    const row = element('article', 'diary-day');
+    const rule = index < 2 ? '변경 전' : '변경 후';
+    add(row, element('strong', '', `${index + 1}일차 · ${day.day_kst} · ${rule}`),
+      element('span', '', day.value === null ? '값 없음' : `${Number(day.value).toFixed(2)} ${config.unit}`),
+      day.note ? element('p', '', day.note) : null);
+    return row;
+  }));
+  if (!change) return;
+  $('#diary-change-details').replaceChildren(
+    element('p', '', `바꾼 시각 · ${formatKst(change.changed_at)} (Asia/Seoul)`),
+    element('p', '', `가리키는 기록 · 1일차 ${change.day1_kst} / 2일차 ${change.day2_kst}`),
+    element('p', '', `이전 규칙 · ${change.previous_rule}`),
+    element('p', '', `바꾼 규칙 · ${change.next_rule}`),
+    element('p', '', `이유 · ${change.reason}`),
+  );
+  const before = days.slice(0, 2).map((day) => day.value).filter((value) => value !== null);
+  const after = days.slice(2).map((day) => day.value).filter((value) => value !== null);
+  const average = (values) => values.length
+    ? `${(values.reduce((sum, value) => sum + Number(value), 0) / values.length).toFixed(2)} ${config.unit}`
+    : '값 없음';
+  $('#diary-before-after').replaceChildren(
+    element('p', '', `변경 전 ${before.length}일 평균 · ${average(before)}`),
+    element('p', '', `변경 후 ${after.length}일 평균 · ${average(after)}`),
+    element('small', '', `같은 지표: ${config.metric_name} · 같은 단위: ${config.unit} · 같은 계산: ${config.calculation_rule}`),
+  );
+}
+
 function render() {
   if (!state.snapshot) return;
   renderSwitcher();
@@ -384,13 +494,30 @@ function render() {
   renderTasks();
   renderLogs();
   renderSee();
+  renderDiary();
   document.querySelectorAll('[data-tab]').forEach((button) => {
     const active = button.dataset.tab === state.tab;
     button.classList.toggle('is-active', active);
     if (active) button.setAttribute('aria-current', 'page');
     else button.removeAttribute('aria-current');
   });
-  for (const name of ['plan', 'do', 'see']) $(`#${name}-panel`).hidden = name !== state.tab;
+  for (const name of ['plan', 'do', 'see', 'diary']) $(`#${name}-panel`).hidden = name !== state.tab;
+}
+
+for (const [selector, action, fields, success] of [
+  ['#diary-setup-form', 'diary.config', ['question', 'metric_name', 'unit', 'plan_rule'], '첫날 기준을 고정했습니다.'],
+  ['#diary-day-form', 'diary.day', ['value', 'note'], '오늘 기록을 저장했습니다.'],
+  ['#diary-rule-form', 'diary.rule', ['next_rule', 'reason'], '규칙 변경을 기록했습니다.'],
+]) {
+  $(selector).addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = Object.fromEntries(fields.map((field) => [field, form.elements.namedItem(field).value]));
+    const result = await mutate(action, data);
+    if (!result) return;
+    form.reset();
+    notice(success);
+  });
 }
 
 document.querySelectorAll('[data-tab]').forEach((button) => button.addEventListener('click', () => {
@@ -521,4 +648,80 @@ $('#review-form').addEventListener('submit', async (event) => {
   notice('개선점이 다음 계획에 이어졌습니다.');
 });
 
-load();
+document.querySelectorAll('[data-auth-mode]').forEach((button) => button.addEventListener('click', () => {
+  const mode = button.dataset.authMode;
+  document.querySelectorAll('[data-auth-mode]').forEach((item) => {
+    const active = item === button;
+    item.classList.toggle('is-active', active);
+    item.setAttribute('aria-pressed', String(active));
+  });
+  $('#auth-submit').textContent = mode === 'register' ? '가입하고 시작하기' : '로그인';
+  $('#auth-form').elements.namedItem('password').autocomplete = mode === 'register' ? 'new-password' : 'current-password';
+  authNotice('');
+}));
+
+$('#auth-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const mode = document.querySelector('[data-auth-mode].is-active').dataset.authMode;
+  const data = {
+    username: form.elements.namedItem('username').value,
+    password: form.elements.namedItem('password').value,
+  };
+  try {
+    const result = await authRequest(mode, data);
+    form.reset();
+    authNotice('');
+    await showApp(result.user);
+  } catch (error) {
+    authNotice(error.message, true);
+  }
+});
+
+$('#logout-button').addEventListener('click', async () => {
+  try {
+    await authRequest('logout');
+    showAuth();
+    authNotice('로그아웃했습니다.');
+  } catch (error) {
+    notice(error.message, true);
+  }
+});
+
+$('#account-settings').addEventListener('click', () => {
+  authNotice('', false, '#account-message');
+  $('#account-dialog').showModal();
+});
+$('#account-close').addEventListener('click', () => $('#account-dialog').close());
+
+$('#password-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  try {
+    await authRequest('change-password', {
+      current_password: form.elements.namedItem('current_password').value,
+      new_password: form.elements.namedItem('new_password').value,
+    });
+    form.reset();
+    showAuth();
+    authNotice('비밀번호를 바꿨습니다. 새 비밀번호로 다시 로그인해 주세요.');
+  } catch (error) {
+    authNotice(error.message, true, '#account-message');
+  }
+});
+
+$('#delete-account-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  if (!confirm('계정과 이 계정의 모든 기록을 삭제할까요? 이 작업은 되돌릴 수 없습니다.')) return;
+  const form = event.currentTarget;
+  try {
+    await authRequest('delete-account', { password: form.elements.namedItem('password').value });
+    form.reset();
+    showAuth();
+    authNotice('계정과 기록을 삭제했습니다.');
+  } catch (error) {
+    authNotice(error.message, true, '#account-message');
+  }
+});
+
+restoreSession();
