@@ -45,6 +45,8 @@
 
     button:focus-visible,
     a:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
     [tabindex="-1"]:focus-visible {
       outline: 3px solid var(--focus);
       outline-offset: 4px;
@@ -93,12 +95,17 @@
       text-transform: uppercase;
     }
 
+    .masthead-links { display: flex; align-items: center; gap: 1.2rem; }
+    .masthead-links a { font-weight: 700; }
+
     .intro {
       display: grid;
       grid-template-columns: minmax(0, 1.25fr) minmax(22rem, 0.75fr);
       min-height: 12.8rem;
       border-bottom: 1px solid var(--ink);
     }
+
+    .public-page .intro { margin-top: 1.5rem; }
 
     .title-block {
       position: relative;
@@ -220,6 +227,8 @@
       padding-top: 0.9rem;
       align-items: start;
     }
+
+    .public-page .spread { padding-top: 1.9rem; }
 
     .stories-heading {
       min-height: 2.55rem;
@@ -443,6 +452,72 @@
 
     .project-detail li + li { margin-top: 0.35rem; }
 
+    .action-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.75rem;
+      padding: 0.55rem 0.9rem;
+      border: 1px solid var(--ink);
+      background: var(--navy);
+      color: var(--white);
+      font-weight: 800;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .private-page { padding: 1.8rem 0 3rem; }
+    .private-heading {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      align-items: end;
+      gap: 2rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .private-heading h1 { font-size: clamp(3rem, 6vw, 5rem); }
+    .private-heading-copy { max-width: 34rem; margin: 0 0 0.2rem; color: #344155; }
+    .feedback { min-height: 1.8rem; color: #164677; font-weight: 700; }
+    .feedback:empty { min-height: 0; margin: 0 0 1rem; }
+    .feedback.error { color: #ad2323; }
+    .auth-layout { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); align-items: start; gap: 1rem; }
+    .auth-access { display: grid; align-content: start; gap: 1rem; }
+    .locked-card { padding: 1.6rem; color: var(--white); background: var(--navy); }
+    .locked-card h2 { margin: 0 0 1rem; font-size: 1.8rem; line-height: 1.25; }
+    .locked-card p { color: #e3eaf2; }
+    .small-note { font-size: 0.875rem; color: var(--muted); }
+    .locked-card .small-note { color: #afc8ed; }
+    .auth-form, .passkey-manager, .note-card { padding: 1.3rem; border: 1px solid var(--ink); background: var(--white); }
+    .auth-form { display: flex; flex-direction: column; gap: 0.65rem; }
+    .auth-form h2 { margin: 0 0 0.5rem; font-size: 1.25rem; }
+    .auth-form label, .inline-form label, .note-card label { font-size: 0.875rem; font-weight: 800; }
+    .auth-form .form-help { margin: 0.5rem 0 0; color: var(--muted); font-size: 0.875rem; }
+    .auth-form input, .auth-form textarea, .inline-form input, .note-card textarea {
+      width: 100%; min-height: 2.75rem; padding: 0.55rem 0.7rem;
+      border: 1px solid #8290a1; border-radius: 0;
+      background: var(--white); color: var(--ink); font: inherit;
+    }
+    .auth-form textarea { min-height: 4.5rem; resize: vertical; }
+    .auth-form button { margin-top: auto; }
+    .action-button.secondary { color: var(--navy); background: var(--pale-blue); }
+    .action-button:disabled, .text-button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .unlocked-heading { display: flex; justify-content: space-between; align-items: start; gap: 1rem; border-bottom: 1px solid var(--ink); }
+    .unlocked-heading h2 { margin: 0; font-size: 2rem; }
+    .unlocked-heading p:last-child { margin-top: 0.2rem; }
+    .text-button { padding: 0.4rem 0.65rem; border: 1px solid var(--ink); background: var(--white); font-weight: 800; }
+    .note-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem; margin-top: 1rem; }
+    .note-card { display: flex; flex-direction: column; gap: 0.5rem; }
+    .note-card h3 { margin: 0; font-size: 1.15rem; }
+    .note-card textarea { min-height: 8rem; resize: vertical; }
+    .note-card button { align-self: start; margin-top: auto; }
+    .passkey-manager { display: grid; gap: 0.8rem; margin-top: 1.2rem; }
+    .passkey-manager h3 { margin: 0; font-size: 1.35rem; }
+    .passkey-manager p { margin: 0.25rem 0 0; }
+    .inline-form > div { display: flex; gap: 0.5rem; margin-top: 0.35rem; }
+    .passkey-list { display: grid; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+    .passkey-list li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.6rem 0; border-top: 1px solid var(--line); }
+    .passkey-list small { display: block; color: var(--muted); }
+
     footer {
       display: flex;
       align-items: center;
@@ -460,12 +535,14 @@
     @media (min-width: 1081px) and (max-height: 820px) {
       .masthead { min-height: 3rem; }
       .intro { min-height: 0; }
+      .public-page .intro { margin-top: 0.4rem; }
       .title-block { padding-top: 0.8rem; padding-bottom: 0.8rem; }
       h1 { font-size: clamp(3rem, 4.7vw, 4.65rem); }
       .profile { gap: 0.3rem; padding-top: 0.6rem; padding-bottom: 0.6rem; }
       .profile p { line-height: 1.55; }
       .phase-line li { padding-top: 0.3rem; }
       .spread { padding-top: 0.55rem; }
+      .public-page .spread { padding-top: 0.55rem; }
       .stories-heading { min-height: 2rem; margin-bottom: 0.4rem; }
       .story { min-height: 0; padding: 0.75rem; }
       .story-top { margin-bottom: 0.55rem; }
@@ -487,13 +564,16 @@
       .intro { grid-template-columns: minmax(0, 1fr) minmax(19rem, 0.75fr); }
       .spread { grid-template-columns: 1fr; }
       .project { min-height: 0; }
+      .private-heading { gap: 1rem; }
     }
 
     @media (max-width: 760px) {
       .sheet { padding: 0 1rem 1.25rem; }
-      .masthead { min-height: 3.25rem; }
+      .masthead { min-height: 3.25rem; flex-wrap: wrap; padding: 0.45rem 0; }
       .issue { font-size: 0.75rem; }
       .intro { grid-template-columns: 1fr; }
+      .public-page .intro { margin-top: 0.75rem; }
+      .public-page .spread { padding-top: 1.25rem; }
       .title-block {
         min-height: 12rem;
         padding: 1.25rem 0;
@@ -508,6 +588,11 @@
       .story:nth-child(2) { transform: none; }
       .stories-heading { display: block; }
       .stories-heading p { margin-top: 0.2rem; }
+      .masthead-links { flex-wrap: wrap; gap: 0.65rem; font-size: 0.75rem; }
+      .private-page { padding-top: 1.5rem; }
+      .private-heading, .auth-layout, .note-grid { grid-template-columns: 1fr; }
+      .inline-form > div { display: block; }
+      .inline-form button { margin-top: 0.5rem; }
       footer { display: block; }
       footer p + p { margin-top: 0.35rem; }
     }

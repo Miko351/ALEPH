@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="패스키로 잠긴 개인 메모 자리. 공개 소개 페이지는 누구나 볼 수 있습니다.">
+  <title>패스키로 잠긴 자리 · 조금 더 들여다보면</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#private-main">본문으로 건너뛰기</a>
+  <div class="sheet">
+    <header class="masthead">
+      <span class="brand">a little closer<span>.</span></span>
+      <nav class="masthead-links" aria-label="페이지 이동">
+        <span class="issue">Private / Passkey</span>
+        <a href="index.html">공개 소개로 돌아가기 ↗</a>
+      </nav>
+    </header>
+
+    <main class="private-page" id="private-main">
+      <div class="private-heading">
+        <div>
+          <p class="kicker">공개 소개와 분리된 공간</p>
+          <h1>나만 보는<br><em>작은 자리.</em></h1>
+        </div>
+        <p class="private-heading-copy">공개 소개와 달리, 이곳의 메모는 패스키로 들어온 계정에만 보입니다.</p>
+      </div>
+
+      <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
+
+      <section class="auth-layout" id="auth-panel" aria-labelledby="locked-title">
+        <div class="auth-access">
+          <div class="locked-card">
+            <p class="section-kicker">Locked</p>
+            <h2 id="locked-title">패스키 없이는 열리지 않습니다.</h2>
+            <p>가입·로그인에 비밀번호는 쓰지 않습니다. 브라우저가 기기 또는 패스키 관리자에 확인을 요청합니다.</p>
+            <p class="small-note">HTTPS 또는 localhost에서만 패스키를 사용할 수 있습니다.</p>
+          </div>
+          <form id="login-form" class="auth-form">
+            <h2>패스키로 들어가기</h2>
+            <label for="login-username">아이디</label>
+            <input id="login-username" name="username" autocomplete="username" required minlength="3" maxlength="30" pattern="[a-zA-Z0-9_-]+">
+            <button class="action-button" type="submit">패스키로 로그인</button>
+          </form>
+        </div>
+        <form id="register-form" class="auth-form">
+          <h2>새 자리 만들기</h2>
+          <label for="register-username">아이디</label>
+          <input id="register-username" name="username" autocomplete="username" required minlength="3" maxlength="30" pattern="[a-zA-Z0-9_-]+">
+          <label for="register-name">첫 패스키 이름</label>
+          <input id="register-name" name="name" placeholder="예: 내 노트북" required maxlength="40">
+          <p class="form-help">잠긴 자리에 넣을 예시 문구 세 개를 직접 적어 주세요. 실제 개인정보는 넣지 마세요.</p>
+          <label for="register-project">준비 중인 프로젝트</label>
+          <textarea id="register-project" name="noteProject" required maxlength="500" placeholder="가상의 프로젝트 메모"></textarea>
+          <label for="register-target">살펴볼 곳</label>
+          <textarea id="register-target" name="noteTarget" required maxlength="500" placeholder="가상의 목록"></textarea>
+          <label for="register-reflection">개인 회고</label>
+          <textarea id="register-reflection" name="noteReflection" required maxlength="500" placeholder="가상의 회고"></textarea>
+          <button class="action-button secondary" type="submit">패스키 등록하고 시작</button>
+        </form>
+      </section>
+
+      <section class="unlocked-panel" id="unlocked-panel" aria-labelledby="unlocked-title" hidden>
+        <div class="unlocked-heading">
+          <div>
+            <p class="section-kicker">Unlocked / This account only</p>
+            <h2 id="unlocked-title">내 메모</h2>
+            <p id="account-label"></p>
+          </div>
+          <button type="button" class="text-button" id="logout-button">로그아웃</button>
+        </div>
+        <div class="note-grid" id="note-list"></div>
+
+        <section class="passkey-manager" aria-labelledby="manager-title">
+          <div>
+            <p class="section-kicker">내 패스키 관리</p>
+            <h3 id="manager-title">분실에 대비해 두 개를 등록하세요.</h3>
+            <p>하나를 지운 뒤에도 남은 패스키로 로그인할 수 있습니다. 마지막 패스키는 삭제할 수 없습니다.</p>
+          </div>
+          <form id="add-passkey-form" class="inline-form">
+            <label for="add-passkey-name">새 패스키 이름</label>
+            <div>
+              <input id="add-passkey-name" name="name" placeholder="예: 보안 키" required maxlength="40">
+              <button class="action-button" type="submit">추가 등록</button>
+            </div>
+          </form>
+          <ul id="passkey-list" class="passkey-list"></ul>
+          <p class="small-note">등록한 패스키를 모두 잃으면 계정에 들어갈 수 없습니다. 복구 기능은 아직 없습니다.</p>
+        </section>
+      </section>
+    </main>
+
+    <footer><p>공개 소개는 계속 누구나 볼 수 있습니다.</p></footer>
+  </div>
+  <script src="vendor/simplewebauthn.min.js" defer></script>
+  <script src="private.js" defer></script>
+</body>
+</html>
