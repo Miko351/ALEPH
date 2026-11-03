@@ -1,0 +1,22 @@
+{
+  "metrics": {
+    "ritual": {
+      "source": "리추얼 기록",
+      "first": "2026-08-11",
+      "last": "2026-11-03",
+      "days": 50,
+      "morning": 50,
+      "evening": 49
+    },
+    "attendance": {
+      "source": "내 출석 기록",
+      "asOf": "2026-11-03",
+      "trainingDays": 56,
+      "finalizedDays": 55,
+      "present": 49,
+      "displayedAttendanceRate": 87.5
+    },
+    "submissions": null
+  },
+  "approved": []
+}

@@ -1,0 +1,29 @@
+:root{color-scheme:light;--bg:#f4f3ed;--ink:#172820;--muted:#53645b;--rule:#c8d0c7;--accent:#19583f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.75 system-ui,"Malgun Gothic",sans-serif}
+a{color:var(--accent);text-underline-offset:.24em}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:5px}
+.shell{max-width:1050px;margin-inline:auto;padding-inline:clamp(20px,5vw,64px)}
+.mast{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-block:21px;flex-wrap:wrap}
+.brand{font-weight:800;text-decoration:none;color:var(--ink)}
+.brand span,.eyebrow{font-size:.76rem;letter-spacing:.12em;color:var(--muted);font-weight:700}
+nav,.routes{display:flex;gap:14px 22px;flex-wrap:wrap}
+nav a{text-decoration:none;font-size:.9rem}
+.hero{padding-block:clamp(65px,11vw,130px);border-top:1px solid var(--rule)}
+h1,h2,h3,p{margin:0 0 .75em}
+h1{font-size:clamp(4rem,12vw,8rem);line-height:1.02;letter-spacing:-.085em;margin-bottom:.2em}
+h2{font-size:clamp(1.85rem,5vw,3.15rem);letter-spacing:-.055em;line-height:1.2}
+h3{font-size:1.16rem;line-height:1.4}
+.tagline{font-size:clamp(1.14rem,3vw,1.56rem);max-width:37rem;word-break:keep-all;margin-bottom:1.7rem}
+.routes a{border:1px solid var(--rule);border-radius:2px;padding:6px 12px;text-decoration:none}
+.section{border-top:1px solid var(--rule);padding-block:clamp(36px,7vw,76px)}
+.story{max-width:45rem;font-size:1.07rem;line-height:1.95;word-break:keep-all}
+.story p:not(.date){margin-bottom:1.35em}
+.date{font-size:.85rem;color:var(--accent);font-weight:750;margin-top:1.5rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}
+.panel{border:1px solid var(--rule);background:#fafaf5;padding:22px}
+.panel strong{display:block;font-size:1.8rem;letter-spacing:-.045em;margin:.1em 0}
+.source{font-size:.85rem;color:var(--muted)}
+.timeline{list-style:none;padding:0}.timeline li{display:flex;gap:18px;border-bottom:1px solid var(--rule);padding:.6em 0}.timeline time{min-width:6rem;color:var(--muted)}
+.approved:not(:empty){margin-top:1rem}
+.contact{padding-bottom:6rem}
