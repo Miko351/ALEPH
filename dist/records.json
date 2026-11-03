@@ -6,14 +6,16 @@
       "last": "2026-11-03",
       "days": 56,
       "morning": 56,
-      "evening": 55
+      "evening": 56
     },
     "attendance": {
       "source": "내 출석 기록",
-      "asOf": "2026-11-03",
+      "asOf": "2026-11-04",
       "trainingDays": 56,
       "finalizedDays": 55,
       "present": 49,
+      "enrolledDays": 56,
+      "displayedAbsent": 6,
       "displayedAttendanceRate": 87.5
     },
     "submissions": {
