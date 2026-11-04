@@ -82,8 +82,8 @@ function render() {
   }));
   const describe = (metric, label) => {
     const difference = rows[0][metric] - rows[1][metric];
-    if (difference === 0) return label + '은 두 지역이 같습니다.';
-    return label + '은 ' + names[difference > 0 ? 0 : 1] + '가 더 높습니다.';
+    if (difference === 0) return '두 지역의 ' + label + ' 수치가 같습니다.';
+    return names[difference > 0 ? 0 : 1] + '의 ' + label + ' 수치가 더 높습니다.';
   };
   element('comparison').textContent = describe(0, isGrowth ? '방문 증가율' : '방문 규모')
     + ' ' + describe(1, isGrowth ? '관광소비 증가율' : '관광소비 규모');
