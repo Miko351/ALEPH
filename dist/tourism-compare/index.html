@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>지역 관광 비교</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="site.mjs" type="module"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="label">관광 데이터 비교 도구</p>
+      <h1>지역 관광 비교</h1>
+      <p>지역 관광 현황을 살피는 사람이 같은 기간의 방문 규모와 관광소비 규모를 비교하고, 두 지표가 얼마나 다르게 늘거나 줄었는지 확인할 수 있습니다.</p>
+      <p class="source">기반 논문 <a href="../assets/research.pdf">지역별 방문 규모와 관광소비의 관계</a></p>
+    </header>
+    <section aria-labelledby="compare-title">
+      <h2 id="compare-title">지역과 기간 선택</h2>
+      <p>화면의 지역과 수치는 기능 확인을 위해 만든 예시입니다.</p>
+      <form id="compare">
+        <div class="controls">
+          <label>지역 1 <select id="first"></select></label>
+          <label>지역 2 <select id="second"></select></label>
+          <label>기간 <select id="period"></select></label>
+        </div>
+        <fieldset>
+          <legend>비교 방식</legend>
+          <label><input name="mode" type="radio" value="size" checked> 규모</label>
+          <label><input name="mode" type="radio" value="growth"> 증가율</label>
+        </fieldset>
+      </form>
+      <p id="error" role="status" hidden></p>
+      <div id="results" aria-live="polite">
+        <h2 id="result-title"></h2>
+        <table>
+          <thead><tr><th scope="col">지역</th><th scope="col" id="visits-label"></th><th scope="col" id="spend-label"></th></tr></thead>
+          <tbody id="values"></tbody>
+        </table>
+        <p id="comparison"></p>
+        <aside>
+          <h3>논문 결과와 비교 기준</h3>
+          <p id="research"></p>
+          <p class="source" id="research-source"></p>
+        </aside>
+      </div>
+      <noscript>지역 비교 기능을 사용하려면 JavaScript를 켜 주세요.</noscript>
+    </section>
+  </main>
+</body>
+</html>
